@@ -21,6 +21,10 @@ class Session():
         self.cases = []
         self.dates = []
 
+    def run(self):
+        print('Starting up the boosters...')
+        pass
+
     def getStoredCases(self):
         """
         This function will read cases.txt and return the count.

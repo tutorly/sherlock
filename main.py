@@ -7,4 +7,4 @@ from session import Session
 
 session = Session()
 
-session.sendEmail()
+session.run()
