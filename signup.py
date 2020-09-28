@@ -1,7 +1,9 @@
 import os
 from slack import WebClient
+import requests
+import json
 
-client = WebClient(token=os.environ["SLACK_API_TOKEN"])
-response = client.conversations_list()
-conversations = response["channels"]
-print(conversations)
+payload = {'channel': 'G01BE5PUFCM', 'token': os.getenv('SLACK_API_TOKEN')}
+
+resp = requests.get('https://slack.com/api/conversations.history', params=payload)
+print(resp.content)
