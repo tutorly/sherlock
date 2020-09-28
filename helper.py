@@ -3,8 +3,7 @@ import time
 
 def incrementCases():
     """
-    This function will read the .txt file and increase it's value by one. 
-    It is to be used whenever we have found a new COVID-19 case on campus
+    This function will read the cases.txt file and increase it's value by one.
     """
     f = open('cases.txt')
     count = f.read()
@@ -12,3 +11,14 @@ def incrementCases():
     f.close()
     f = open('cases.txt', 'w')
     f.write(str(count))
+    f.close()
+
+
+def getCurrentCases():
+    """
+    This function will read cases.txt and return the count.
+    """
+    f = open('cases.txt')
+    count = f.read()
+    f.close()
+    return count
