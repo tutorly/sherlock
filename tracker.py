@@ -5,6 +5,7 @@ import json
 from lxml import html
 import sys
 from datetime import date
+import os
 
 # Constant URL that we scrape
 url = 'https://spu.edu/administration/health-services/covid-19-cases'
@@ -54,3 +55,4 @@ today = today.split('-')
 today = '{}/{}/{}'.format(today[1], today[2], today[0])
 
 print('Last Update From Tutorly: ', today)
+
