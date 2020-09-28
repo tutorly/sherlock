@@ -42,6 +42,7 @@ print('current number of cases: {}'.format(current_num_cases))
 
 if int(getStoredCases()) != current_num_cases:
     sendEmail()
+    setNumCases(current_num_cases) # TODO
 
 # Cases Output
 for x in range(0, current_num_cases):
