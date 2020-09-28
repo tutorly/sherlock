@@ -38,21 +38,17 @@ if len(cases) != len(dates):
 # Store the number of cases
 number_of_cases = len(cases)
 
-# Output
+# Cases Output
 for x in range(0, number_of_cases):
     print('{}: {}'.format(dates[x], cases[x]))
 
-# Date output
+# Get the date from SPU website
 spu_last_updated = str(tree.xpath('//*[@id="pageBody"]/div/p[6]/em/text()'))
 date_spu_last_updated = spu_last_updated.strip("['Last updated: ']",)
 
-print('Last Update From SPU: ', date_spu_last_updated)
-
-today = str(date.today())
-
-today = today.split('-')
-
+# Format today's date
+today = str(date.today()).split('-')
 today = '{}/{}/{}'.format(today[1], today[2], today[0])
 
+print('Last Update From SPU: ', date_spu_last_updated)
 print('Last Update From Tutorly: ', today)
-
