@@ -10,6 +10,6 @@ def incrementCases():
 
 
 for x in range(0,100):
-    incrementCount()
+    incrementCases()
     time.sleep(1)
 
