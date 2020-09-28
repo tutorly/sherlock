@@ -102,7 +102,7 @@ class Session():
         # Get the date from SPU website
         spu_last_updated = str(tree.xpath(
             '//*[@id="pageBody"]/div/p[6]/em/text()'))
-        date_spu_last_updated = spu_last_updated.strip("['Last updated: ']",)
+        date_spu_last_updated = spu_last_updated.strip("['Last updated: ']",) # TODO FIX THIS WARNING
 
         # Format today's date
         today = str(date.today()).split('-')
