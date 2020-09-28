@@ -6,7 +6,7 @@ from lxml import html
 import sys
 from datetime import date
 import os
-from send import SendEmail
+from helper import sendEmail, getStoredCases
 
 # Constant URL that we scrape
 url = 'https://spu.edu/administration/health-services/covid-19-cases'
@@ -40,8 +40,8 @@ if len(cases) != len(dates):
 current_num_cases = len(cases)
 print('current number of cases: {}'.format(current_num_cases))
 
-if IsNewCase(current_num_cases):
-    SendEmail()
+if int(getStoredCases()) != current_num_cases:
+    sendEmail()
 
 # Cases Output
 for x in range(0, current_num_cases):

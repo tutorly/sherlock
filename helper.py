@@ -3,7 +3,7 @@ import smtplib
 import os
 
 
-def SendEmail():
+def sendEmail():
     # This is an env var that stores the tutorly gmail temp password. Your local machine must be configured to have this.
     password = os.getenv('tutorly_gmail_temp_password')
 
@@ -25,7 +25,7 @@ def SendEmail():
     print('')
 
 
-def IncrementCases():
+def incrementCases():
     """
     This function will read the cases.txt file and increase it's value by one.
     """
@@ -38,7 +38,7 @@ def IncrementCases():
     f.close()
 
 
-def GetCurrentCases():
+def getStoredCases():
     """
     This function will read cases.txt and return the count.
     """
