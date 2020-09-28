@@ -1,6 +1,6 @@
 import time
 
-def incrementCount():
+def incrementCases():
     f = open('cases.txt')
     count = f.read()
     count = int(count) + 1
