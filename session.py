@@ -6,7 +6,6 @@ from lxml import html
 import sys
 from datetime import date
 import os
-from helper import sendEmail, getStoredCases
 import time
 import smtplib
 import os
