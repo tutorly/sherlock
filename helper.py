@@ -1,7 +1,15 @@
+import time
+
 def incrementCount():
-    f = open('count.txt', 'w')
-    f.truncate(0)
+    f = open('cases.txt')
+    count = f.read()
+    count = int(count) + 1
     f.close()
+    f = open('count.txt', 'w')
+    f.write(str(count))
 
 
-incrementCount()
+for x in range(0,100):
+    incrementCount()
+    time.sleep(1)
+
