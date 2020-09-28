@@ -1,12 +1,10 @@
 # Imports
-from bs4 import BeautifulSoup
 import requests
 import json
 from lxml import html
 import sys
 from datetime import date
 import os
-from helper import sendEmail, getStoredCases
 
 # Constant URL that we scrape
 url = 'https://spu.edu/administration/health-services/covid-19-cases'
@@ -42,7 +40,7 @@ print('current number of cases: {}'.format(current_num_cases))
 
 if int(getStoredCases()) != current_num_cases:
     sendEmail()
-    setNumCases(current_num_cases) # TODO
+    setNumCases(current_num_cases)  # TODO
 
 # Cases Output
 for x in range(0, current_num_cases):

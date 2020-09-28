@@ -1,5 +1,4 @@
 # Imports
-from bs4 import BeautifulSoup
 import requests
 import json
 from lxml import html
@@ -22,8 +21,10 @@ class Session():
         self.dates = []
 
     def run(self):
-        print('Starting up the boosters...')
-        pass
+        while(1):
+            print('Starting up the boosters...')
+            time.sleep(5)
+            pass
 
     def getStoredCases(self):
         """
