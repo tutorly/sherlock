@@ -11,7 +11,9 @@ import os
 
 
 class Session():
-
+    """
+    This class does everything from web scraping to sending emails. It's a beast.
+    """
     def __init__(self):
         """
         Initializes with the URL, a list of temporary cases per scrape, a list of dates per scrape, and an integer from cases.txt.
