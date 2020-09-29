@@ -9,6 +9,6 @@ rawjson = json.loads(content)
 messages = rawjson['messages']
 
 # Loop through each message and handle new emails
-for element in messages:
-    if '@' in element['text']:
+for message in messages:
+    if '@' in message['text']:
         print(element['text'])
