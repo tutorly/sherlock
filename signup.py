@@ -9,4 +9,4 @@ messages = rawjson['messages']
 
 # Loop through each message
 for element in messages:
-    print(element['text'])
+    print(element['text']) # TODO handle emails here
