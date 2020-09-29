@@ -24,8 +24,12 @@ class Session():
         self.emails = []
 
     def run(self):
+        """
+        Method that drives the program
+        """
         print('Starting up the boosters')
         self.doScrape()
+        self.checkForNewEmails()
 
     def getStoredCases(self):
         """
@@ -107,7 +111,7 @@ class Session():
         print('Last Update From SPU: ', date_spu_last_updated)
         print('Last Update From Tutorly: ', today)
 
-    def checkForNewEmails():
+    def checkForNewEmails(self):
         """
         This functions makes a call to the slack api and checks for newly submitted emails.
         """
@@ -119,12 +123,12 @@ class Session():
         # Loop through each message and handle new emails
         for message in messages:
             if '@' in message['text']:
-                print(element['text'])
+                print(message['text'])
 
-    def clearTempLists():
+    def clearTempLists(self):
         """
         This function will only be used if we decide to loop main.py instead of running from scratch every x minutes.
-        It clears lists.
+        It clears all class-member lists.
         """
         self.cases.clear()
         self.dates.clear()
