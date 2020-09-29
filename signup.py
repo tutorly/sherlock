@@ -1,5 +1,4 @@
 import os
-from slack import WebClient
 import requests
 import json
 
