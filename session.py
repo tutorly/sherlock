@@ -107,7 +107,6 @@ class Session():
         print('Last Update From SPU: ', date_spu_last_updated)
         print('Last Update From Tutorly: ', today)
 
-
     def checkForNewEmails():
         """
         This functions makes a call to the slack api and checks for newly submitted emails.
@@ -121,3 +120,12 @@ class Session():
         for message in messages:
             if '@' in message['text']:
                 print(element['text'])
+
+    def clearTempLists():
+        """
+        This function will only be used if we decide to loop main.py instead of running from scratch every x minutes.
+        It clears lists.
+        """
+        self.cases.clear()
+        self.dates.clear()
+        self.emails.clear()
