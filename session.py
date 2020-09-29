@@ -70,46 +70,38 @@ class Session():
         # Setup for lxml
         page = requests.get(self.url)
         tree = html.fromstring(page.content)
-
         # This is the path to the div that stores the updated data
         path_to_cases = '//*[@id="pageBody"]/div/p/text()'
         path_to_dates = '//*[@id="pageBody"]/div/p/strong/text()'
-
         # Get cases and add to cases list
         for element in tree.xpath(path_to_cases):
             self.cases.append(element)
-
         # Get dates and append to dates list
         for element in tree.xpath(path_to_dates):
             self.dates.append(element)
-
         # Check to make sure length is the same for both lists
         if len(self.cases) != len(self.dates):
             sys.exit('ERROR. Cases list length: {}. Dates list length: {}'.format(
                 len(self.cases), len(self.dates)))
-
         # Store the number of cases
         current_num_cases = len(self.cases)
         print('current number of cases: {}'.format(current_num_cases))
-
+        # Check if cases has changes
         if int(self.getStoredCases()) != current_num_cases:
             self.sendEmail()
             self.setNumCases(current_num_cases)
-
         # Cases Output
         for x in range(0, current_num_cases):
             print('{}: {}'.format(self.dates[x], self.cases[x]))
-
         # Get the date from SPU website
         spu_last_updated = str(tree.xpath(
             '//*[@id="pageBody"]/div/p[6]/em/text()'))
         date_spu_last_updated = spu_last_updated.strip(
             "['Last updated: ']",)  # TODO FIX THIS WARNING
-
         # Format today's date
         today = str(date.today()).split('-')
         today = '{}/{}/{}'.format(today[1], today[2], today[0])
-
+        # Dates output
         print('Last Update From SPU: ', date_spu_last_updated)
         print('Last Update From Tutorly: ', today)
 
@@ -123,7 +115,6 @@ class Session():
         content = requests.get('https://slack.com/api/conversations.history', params=payload).content
         rawjson = json.loads(content)
         messages = rawjson['messages']
-
         # Loop through each message and handle new emails
         for message in messages:
             if '@' in message['text']:
