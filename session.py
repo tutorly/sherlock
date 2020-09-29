@@ -25,7 +25,7 @@ class Session():
 
     def run(self):
         """
-        Method that drives the program
+        Method that drives the program.
         """
         print('Starting up the boosters')
         self.doScrape()
@@ -42,7 +42,7 @@ class Session():
 
     def sendEmail(self):
         """
-        Sends emails. Remove print statements when we are running this on the raspberry pi.
+        Sends emails to specified list of recipients.
         """
         # This is an env var that stores the tutorly gmail temp password. Your local machine must be configured to have this.
         password = os.getenv('tutorly_gmail_temp_password')
