@@ -19,6 +19,7 @@ class Session():
         self.url = 'https://spu.edu/administration/health-services/covid-19-cases'
         self.cases = []
         self.dates = []
+        self.emails = []
 
     def run(self):
         print('Starting up the boosters')
@@ -111,3 +112,19 @@ class Session():
 
         print('Last Update From SPU: ', date_spu_last_updated)
         print('Last Update From Tutorly: ', today)
+
+
+    def checkForNewEmails():
+        """
+        This functions makes a call to the slack api and checks for newly submitted emails.
+        """
+        # Slack API request and JSON load
+        payload = {'channel': 'G01BE5PUFCM', 'token': os.getenv('SLACK_API_TOKEN')}
+        content = requests.get('https://slack.com/api/conversations.history', params=payload).content
+        rawjson = json.loads(content)
+        messages = rawjson['messages']
+
+        # Loop through each message and handle new emails
+        for message in messages:
+            if '@' in message['text']:
+                print(element['text'])
