@@ -32,13 +32,15 @@ class Session():
         """
         Method that drives the program.
         """
+        count = 0
         while(1):
-            print('-----------------------------')
-            print('Scraping {}'.format(self.url))
+            
+            print('----------------------------- loop: {}'.format(count))
             self.doScrape()
             self.clearTempLists()
             print('-----------------------------')
-            time.sleep(5)
+            count = count + 1
+            time.sleep(60)
 
     def getStoredCases(self):
         """
