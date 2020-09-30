@@ -123,7 +123,12 @@ class Session():
         # Loop through each message and handle new emails
         for message in messages:
             if '@' in message['text']:
-                print(message['text'])
+                # print(message['text'])
+                lines = message['text'].split('\n')
+                line_with_email = lines[0]
+                email = line_with_email.split(' ')
+                print(email[3])
+
 
     def clearTempLists(self):
         """
