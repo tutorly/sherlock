@@ -107,8 +107,8 @@ class Session():
         print('Found {} cases on last scrape.'.format(current_num_cases))
         # Check if cases has changes
         if int(self.getStoredCases()) != current_num_cases:
-            email_body = str('{}: {}'.format(self.dates[0], self.cases[0]))
-            self.sendEmails(email_body) # TODO Change this into notify function so that I can do emails/twitter/other things
+            new_case_string = str('{}: {}'.format(self.dates[0], self.cases[0]))
+            self.sendEmails(new_case_string) # TODO Change this into notify function so that I can do emails/twitter/other things
             self.setNumCases(current_num_cases)
         # Cases Output
         for x in range(0, current_num_cases):
