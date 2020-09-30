@@ -8,6 +8,11 @@ import os
 import time
 import smtplib
 import os
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+from pprint import pprint
+import pandas as pd
+import numpy as np
 
 
 class Session():
@@ -27,9 +32,11 @@ class Session():
         """
         Method that drives the program.
         """
-        print('Starting up the boosters')
-        self.doScrape()
-        self.checkForNewEmails()
+        while(1):
+            print('Starting up the boosters')
+            self.doScrape()
+            self.clearTempLists()
+            time.sleep(5)
 
     def getStoredCases(self):
         """
@@ -40,7 +47,7 @@ class Session():
         f.close()
         return count
 
-    def sendEmail(self):
+    def sendEmails(self):
         """
         Sends emails to specified list of recipients.
         """
@@ -48,9 +55,10 @@ class Session():
         password = os.getenv('tutorly_gmail_temp_password')
 
         # ----------------- E-Mail List ----------------------
-        toAddress = ['sorenrood@gmail.com', 'stevenkotansky@outlook.com']
+        toAddress = self.emails
         # -----------------------------------------------------
 
+        self.getEmails() # This gets emails and adds them to self.emails class variable
         conn = smtplib.SMTP('smtp.gmail.com', 587)  # smtp address and port
         conn.ehlo()  # call this to start the connection
         # starts tls encryption. When we send our password it will be encrypted.
@@ -94,7 +102,7 @@ class Session():
         print('current number of cases: {}'.format(current_num_cases))
         # Check if cases has changes
         if int(self.getStoredCases()) != current_num_cases:
-            self.sendEmail()
+            self.sendEmails()
             self.setNumCases(current_num_cases)
         # Cases Output
         for x in range(0, current_num_cases):
@@ -111,23 +119,25 @@ class Session():
         print('Last Update From SPU: ', date_spu_last_updated)
         print('Last Update From Tutorly: ', today)
 
-    def checkForNewEmails(self):
+    def getEmails(self):
         """
-        This functions makes a call to the slack api and checks for newly submitted emails.
+        Get emails from google sheets api and add contents to self.emails list.
         """
-        # Slack API request and JSON load
-        payload = {'channel': 'G01BE5PUFCM', 'token': os.getenv('SLACK_API_TOKEN')}
-        content = requests.get('https://slack.com/api/conversations.history', params=payload).content
-        rawjson = json.loads(content)
-        messages = rawjson['messages']
-        # Loop through each message and handle new emails
-        for message in messages:
-            if '@' in message['text']:
-                separated_lines = message['text'].split('\n')
-                line_with_email = separated_lines[0]
-                email = line_with_email.split(' ')
-                print(email)
+        # Connect with our google sheet. The creds.json is hidden by default. Soren has access to it. 
+        scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+        client = gspread.authorize(creds)
+        sheet = client.open("SPU COVID-19 Tracking")
+        sherlock = sheet.worksheet('emails')
 
+        # Use pandas here to work with large data
+        df = pd.DataFrame(sherlock.get_all_records())
+        df = df.replace('', np.nan)
+        df = df.dropna()
+        print(df)
+        for email in df['emails']:
+            self.emails.append(email)
+            print('{} added to list'.format(email))
 
     def clearTempLists(self):
         """
