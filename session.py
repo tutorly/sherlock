@@ -49,13 +49,14 @@ class Session():
         f.close()
         return count
 
-    def sendEmails(self):
+    def sendEmails(self, message):
         """
         Sends emails to specified list of recipients.
         """
         # This is an env var that stores the tutorly gmail temp password. Your local machine must be configured to have this.
-        password = os.getenv('tutorly_gmail_temp_password')
-
+        username = 'covid@tutorly.app'
+        password = os.getenv('covid_tutorly_password')
+        
         # ----------------- E-Mail List ----------------------
         toAddress = self.emails
         # -----------------------------------------------------
@@ -65,11 +66,11 @@ class Session():
         conn.ehlo()  # call this to start the connection
         # starts tls encryption. When we send our password it will be encrypted.
         conn.starttls()
-        conn.login('tutorlyeducation@gmail.com', password)
-        conn.sendmail('tutorlyeducation@gmail.com', toAddress,
-                      'Subject: New COVID-19 case confirmed at SPU \n\nSPU COVID-19 Tracker V1.0')
+        conn.login(username, password)
+        conn.sendmail(username, toAddress,
+                      'Subject: New COVID-19 case confirmed at SPU \n\n{}'.format(message))
         conn.quit()
-        print('Sent notificaton e-mails for the following recipients:\n')
+        print('Sent emails to:\n')
         for i in range(len(toAddress)):
             print(toAddress[i])
         print('')
@@ -91,9 +92,11 @@ class Session():
         path_to_dates = '//*[@id="pageBody"]/div/p/strong/text()'
         # Get cases and add to cases list
         for element in tree.xpath(path_to_cases):
+            element = element.replace(u'\xa0', u'')
             self.cases.append(element)
         # Get dates and append to dates list
         for element in tree.xpath(path_to_dates):
+            element = element.replace(u'\xa0', u'')
             self.dates.append(element)
         # Check to make sure length is the same for both lists
         if len(self.cases) != len(self.dates):
@@ -104,7 +107,8 @@ class Session():
         print('Found {} cases on last scrape.'.format(current_num_cases))
         # Check if cases has changes
         if int(self.getStoredCases()) != current_num_cases:
-            self.sendEmails()
+            email_body = str('{}: {}'.format(self.dates[0], self.cases[0]))
+            self.sendEmails(email_body) # TODO Change this into notify function so that I can do emails/twitter/other things
             self.setNumCases(current_num_cases)
         # Cases Output
         for x in range(0, current_num_cases):
