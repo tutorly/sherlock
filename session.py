@@ -34,7 +34,6 @@ class Session():
         """
         count = 0
         while(1):
-            
             print('----------------------------- loop: {}'.format(count))
             self.doScrape()
             self.clearTempLists()
