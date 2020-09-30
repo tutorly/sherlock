@@ -126,7 +126,7 @@ class Session():
                 separated_lines = message['text'].split('\n')
                 line_with_email = separated_lines[0]
                 email = line_with_email.split(' ')
-                print(email[3])
+                print(email)
 
 
     def clearTempLists(self):
