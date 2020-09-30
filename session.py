@@ -33,9 +33,11 @@ class Session():
         Method that drives the program.
         """
         while(1):
+            print('-----------------------------')
             print('Scraping {}'.format(self.url))
             self.doScrape()
             self.clearTempLists()
+            print('-----------------------------')
             time.sleep(5)
 
     def getStoredCases(self):
