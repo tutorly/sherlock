@@ -33,7 +33,7 @@ class Session():
         Method that drives the program.
         """
         while(1):
-            print('Starting up the boosters')
+            print('Scraping {}'.format(self.url))
             self.doScrape()
             self.clearTempLists()
             time.sleep(5)
@@ -99,7 +99,7 @@ class Session():
                 len(self.cases), len(self.dates)))
         # Store the number of cases
         current_num_cases = len(self.cases)
-        print('current number of cases: {}'.format(current_num_cases))
+        print('Found {} cases on last scrape.'.format(current_num_cases))
         # Check if cases has changes
         if int(self.getStoredCases()) != current_num_cases:
             self.sendEmails()
