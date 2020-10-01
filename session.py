@@ -154,7 +154,7 @@ class Session():
         sheet = client.open("SPU COVID-19 Tracking")
         sherlock = sheet.worksheet('emails')
 
-        # Use pandas here to work with large data
+        # Read google sheet into a dataframe, drop blank rows, appends all emails to self.emails.
         df = pd.DataFrame(sherlock.get_all_records())
         df = df.replace('', np.nan)
         df = df.dropna()
@@ -163,8 +163,7 @@ class Session():
 
     def clearTempLists(self):
         """
-        This function will only be used if we decide to loop main.py instead of running from scratch every x minutes.
-        It clears all class-member lists.
+        This function clears self.cases, self.dates, and self.emails.
         """
         self.cases.clear()
         self.dates.clear()
