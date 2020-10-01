@@ -92,7 +92,8 @@ class Session():
 
     def doScrape(self):
         """
-        This function scrapes the url contained in self.url and looks for a specific html tag's xpath that contains new SPU covid cases. It itterates over the elements within and appends
+        This function scrapes the url contained in self.url and looks for a specific html tag's xpath
+        that contains new SPU covid cases. It itterates over the elements within and appends
         the values to self.cases and self.dates.
         """
         website_up = False
@@ -103,6 +104,7 @@ class Session():
                 website_up = True
             except:
                 print('Could not connect to {}... Retrying in 5 seconds.'.format(self.url))
+                # sendAdminEmail() TODO
                 time.sleep(5)
         
         # This is the path to the div that stores the updated data (lxml lib)
@@ -203,8 +205,8 @@ class Session():
         """
         # Look for all \xa0 characters and remove them
         for i in range(0, len(self.cases) - 1):
-            self.cases[i] = self.cases[i].replace(u'\xa0', u'')
-            self.dates[i] = self.dates[i].replace(u'\xa0', u'')
+            self.cases[i] = self.cases[i].replace(u'\xa0', ' ').strip()
+            self.dates[i] = self.dates[i].replace(u'\xa0', ' ').strip()
 
     def isNewCase(self):
         """
