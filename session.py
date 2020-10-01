@@ -113,12 +113,10 @@ class Session():
 
         # Get cases and add to cases list
         for element in tree.xpath(path_to_cases):
-            element = element.replace(u'\xa0', ' ')
             self.cases.append(element)
 
         # Get dates and append to dates list
         for element in tree.xpath(path_to_dates):
-            element = element.replace(u'\xa0', ' ')
             self.dates.append(element)
 
         # Clean up the lists
@@ -204,13 +202,10 @@ class Session():
         """
         The goal of this function is to make all of the data uniform. Unfinished logic.
         """
-        # Fix cases list
-        for case in self.cases:
-            case = case.replace(u'\xa0', u'') # TODO THESE DONT WORK RIGHT NOW
-
-        # Fix dates list
-        for date in self.dates:
-            date = date.replace(u'\xa0', u'')
+        # Look for all \xa0 characters and remove them
+        for i in range(0, len(self.cases) - 1):
+            self.cases[i] = self.cases[i].replace(u'\xa0', u'')
+            self.dates[i] = self.dates[i].replace(u'\xa0', u'')
 
     def isNewCase(self):
         """
