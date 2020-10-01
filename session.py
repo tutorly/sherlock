@@ -38,7 +38,7 @@ class Session():
         while(1):
             print('----------------------------- loop: {} timestamp: {}'.format(count, datetime.datetime.now()))
             self.doScrape()
-            self.writeListsToGoogleSheet() # @Soren, is this ready yet?
+            self.writeListsToGoogleSheet()
             self.clearTempLists()
             print('-----------------------------')
             count = count + 1
@@ -74,7 +74,8 @@ class Session():
         message = MIMEMultipart()
         message['From'] = 'The Tutorly Team'
         message['Subject'] = 'New COVID-19 case confirmed at SPU'
-        message.attach(body)
+        plainTextBody = MIMEText(body, 'plain')
+        message.attach(plainTextBody)
         server.sendmail(username, self.emails, message.as_string())
         server.quit()
 
