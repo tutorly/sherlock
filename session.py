@@ -7,7 +7,6 @@ import time
 from datetime import date
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from pprint import pprint
 
 import gspread
 import numpy as np
