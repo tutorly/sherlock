@@ -85,7 +85,20 @@ class Session():
         f.close()
 
     def doScrape(self):
+        """
+        Add something insightful here.
+        """
         # Setup for lxml
+        website_up = False
+        while(website_up == False):
+            # This logic exists so that the bot does not die if the website is down.
+            try:
+                page = requests.get(self.url)
+                website_up = True
+            except:
+                print('Could not connect to {}... Retrying in 5 seconds.'.format(self.url))
+                time.sleep(5)
+
         page = requests.get(self.url)
         tree = html.fromstring(page.content)
         # This is the path to the div that stores the updated data
