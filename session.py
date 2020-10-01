@@ -60,7 +60,7 @@ class Session():
 
         # Initialize a connection to the Gmail SMTP server on port 587.
         server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.ehlo() # Initialize SMTP connection with an EHLO call.        
+        #server.ehlo() # Initialize SMTP connection with an EHLO call.        
 
         # Use TLS encryption and log into the SMTP server with user credentials.
         username = 'covid@tutorly.app'
@@ -69,11 +69,11 @@ class Session():
         server.login(username, password)
 
         # Send an email to each of the addresses in the email list with the given message.
-        message = (
-            'From: The Tutorly Team'
-            'Subject: New COVID-19 case confirmed at SPU'
-            '\n{}'.format(body)
-        )
+        message = '''\
+            From: The Tutorly Team\n
+            Subject: New COVID-19 case confirmed at SPU\n
+            
+            {}'''.format(body)
         server.sendmail(username, self.emails, message)
         server.quit()
 
@@ -112,12 +112,12 @@ class Session():
 
         # Get cases and add to cases list
         for element in tree.xpath(path_to_cases):
-            element = element.replace(u'\xa0', u'')
+            element = element.replace(u'\xa0', ' ')
             self.cases.append(element)
 
         # Get dates and append to dates list
         for element in tree.xpath(path_to_dates):
-            element = element.replace(u'\xa0', u'')
+            element = element.replace(u'\xa0', ' ')
             self.dates.append(element)
 
         # Clean up the lists
