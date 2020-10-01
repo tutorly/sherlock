@@ -1,19 +1,19 @@
-# Imports
-import requests
-import json
-from lxml import html
-import sys
-from datetime import date
 import datetime
+import json
 import os
-import time
 import smtplib
-import os
+import sys
+import time
+from datetime import date
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-from pprint import pprint
-import pandas as pd
 import numpy as np
+import pandas as pd
+import requests
+from lxml import html
+from oauth2client.service_account import ServiceAccountCredentials
 
 
 class Session():
@@ -45,38 +45,46 @@ class Session():
 
     def getStoredCases(self):
         """
-        This function will read cases.txt and return the count.
+        This function will read cases.txt and return the count as an integer.
         """
         f = open('cases.txt')
         count = f.read()
         f.close()
-        return count
+        return int(count)
 
-    def sendEmails(self, message):
+    def sendEmails(self, body):
         """
-        Sends emails to specified list of recipients.
+        Send emails using smpt library to every email in the self.emails list.
         """
-        # Env vars used.
+        # Pull an updated list of emails from Google Sheets and update self.emails
+        self.getEmails()
+
+        # Initialize a connection to the Gmail SMTP server on port 587.
+        server = smtplib.SMTP('smtp.gmail.com', 587)        
+
+        # Use TLS encryption and log into the SMTP server with user credentials.
         username = 'covid@tutorly.app'
-        password = os.getenv('covid_tutorly_password')
+        password = os.getenv('covid_tutorly_password') # pull password from local environment variables
+        server.starttls() # Enable TLS encryption so our password will be encrypted.
+        server.login(username, password)
 
-        self.getEmails() # This gets emails and adds them to self.emails class variable
-        conn = smtplib.SMTP('smtp.gmail.com', 587)  # smtp address and port
-        conn.ehlo()  # call this to start the connection
-        # starts tls encryption. When we send our password it will be encrypted.
-        conn.starttls()
-        conn.login(username, password)
-        conn.sendmail(username, self.emails,
-                      'Subject: New COVID-19 case confirmed at SPU \n\n{}'.format(message))
-        conn.quit()
-        print('Sent emails to:\n')
-        for i in range(len(self.emails)):
-            print(self.emails[i])
-        print('')
+        # Send an email to each of the addresses in the email list with the given message.
+        message = MIMEMultipart()
+        message['From'] = 'The Tutorly Team'
+        message['Subject'] = 'New COVID-19 case confirmed at SPU'
+        plainTextBody = MIMEText(body, 'plain')
+        message.attach(plainTextBody)
+        server.sendmail(username, self.emails, message.as_string())
+        server.quit()
+
+        # Log the emails that were sent to the console for reference.
+        emailList = self.emails
+        print('Sent {} emails to:\n'.format(len(emailList)))
+        print(*emailList, sep = '\n') # Prints each email address from the list on its own line.
 
     def setNumCases(self, cases):
         """
-        This function will write the last scraped value to the txt file.
+        This function will write the last scraped value to cases.txt.
         """
         f = open('cases.txt', 'w')
         f.write(str(cases))
@@ -84,9 +92,10 @@ class Session():
 
     def doScrape(self):
         """
-        Add something insightful here.
+        This function scrapes the url contained in self.url and looks for a specific html tag's xpath
+        that contains new SPU covid cases. It itterates over the elements within and appends
+        the values to self.cases and self.dates.
         """
-        # Setup for lxml
         website_up = False
         while(website_up == False):
             # This logic exists so that the bot does not die if the website is down.
@@ -95,32 +104,37 @@ class Session():
                 website_up = True
             except:
                 print('Could not connect to {}... Retrying in 5 seconds.'.format(self.url))
+                # sendAdminEmail() TODO
                 time.sleep(5)
         
+        # This is the path to the div that stores the updated data (lxml lib)
         tree = html.fromstring(page.content)
-        # This is the path to the div that stores the updated data
         path_to_cases = '//*[@id="pageBody"]/div/p/text()'
         path_to_dates = '//*[@id="pageBody"]/div/p/strong/text()'
+
         # Get cases and add to cases list
         for element in tree.xpath(path_to_cases):
-            # element = element.replace(u'\xa0', u'')
             self.cases.append(element)
+
         # Get dates and append to dates list
         for element in tree.xpath(path_to_dates):
-            # element = element.replace(u'\xa0', u'')
             self.dates.append(element)
-        # Clean up the lists
-        self.cleanLists()
+
         # Check to make sure length is the same for both lists
         if len(self.cases) != len(self.dates):
             sys.exit('ERROR. Cases list length: {}. Dates list length: {}'.format(
                 len(self.cases), len(self.dates)))
+            
+        # Clean up the lists
+        self.cleanLists()
+
         # Check for a new case
         self.isNewCase()
 
          # Get the date from SPU website
         raw_spu_date = str(tree.xpath('//*[@id="pageBody"]/div/p[6]/em/text()'))
         last_spu_update = raw_spu_date.strip("['Last updated: ']")  # TODO FIX THIS WARNING
+        
         # Format today's date
         today = str(date.today()).split('-')
         today = '{}/{}/{}'.format(today[1], today[2], today[0])
@@ -132,14 +146,14 @@ class Session():
         """
         Get emails from google sheets api and adds contents to self.emails list.
         """
-        # Connect with our google sheet. The creds.json is hidden by default. Soren has access to it. 
+        # Connect with our google sheet. The creds.json is hidden by default. (You can find this file by searching 'creds.json' in development slack channel.)
         scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
         client = gspread.authorize(creds)
         sheet = client.open("SPU COVID-19 Tracking")
         sherlock = sheet.worksheet('emails')
 
-        # Use pandas here to work with large data
+        # Read google sheet into a dataframe, drop blank rows, appends all emails to self.emails.
         df = pd.DataFrame(sherlock.get_all_records())
         df = df.replace('', np.nan)
         df = df.dropna()
@@ -148,29 +162,33 @@ class Session():
 
     def clearTempLists(self):
         """
-        This function will only be used if we decide to loop main.py instead of running from scratch every x minutes.
-        It clears all class-member lists.
+        This function clears self.cases, self.dates, and self.emails.
         """
         self.cases.clear()
         self.dates.clear()
         self.emails.clear()
 
     def writeListsToGoogleSheet(self):
+        """
+        This function writes the contents of self.dates and self.cases to SPU COVID-19 Tracking Google Sheet. This sheet is available on the Tutorlyeducation gmail account.
+        """
         # self.doScrape()
         scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
         client = gspread.authorize(creds)
-        sheet = client.open("SPU COVID-19 Tracking")
-        caseLog = sheet.worksheet('caseLog')
+        workbook = client.open("SPU COVID-19 Tracking")
+        sheet = workbook.worksheet('caseLog')
         
+        # Write self.dates to gsheets
         count = 2 # count is 2 because we start populating spreadsheet at row 2 (1 is headers)
         for date in self.dates:
-            caseLog.update_cell(count, 1, date)
+            sheet.update_cell(count, 1, date)
             count = count + 1
-        count = 2
         
+        # Write self.cases to gsheets
+        count = 2
         for case in self.cases:
-            caseLog.update_cell(count, 2, case)
+            sheet.update_cell(count, 2, case)
             count = count + 1
 
         print('Data updated in google sheets')
@@ -183,19 +201,16 @@ class Session():
 
     def cleanLists(self):
         """
-        The goal of this function is to make all of the data uniform.
+        The goal of this function is to make all of the data uniform. Unfinished logic.
         """
-        # Fix cases list
-        for case in self.cases:
-            case = case.replace(u'\xa0', u'') # TODO THESE DONT WORK RIGHT NOW
-
-        # Fix dates list
-        for date in self.dates:
-            date = date.replace(u'\xa0', u'')
+        # Look for all \xa0 characters and remove them
+        for i in range(0, len(self.cases) - 1):
+            self.cases[i] = self.cases[i].replace(u'\xa0', ' ').strip()
+            self.dates[i] = self.dates[i].replace(u'\xa0', ' ').strip()
 
     def isNewCase(self):
         """
-        This function checks if  there is a new case by looking at the length of the self.cases list length and
+        This function checks if there is a new case by looking at the length of the self.cases list length and
         cross referencing it with the cases.txt number.
         """
         current_num_cases = len(self.cases)
