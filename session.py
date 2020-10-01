@@ -4,6 +4,7 @@ import json
 from lxml import html
 import sys
 from datetime import date
+import datetime
 import os
 import time
 import smtplib
@@ -34,7 +35,7 @@ class Session():
         """
         count = 0
         while(1):
-            print('----------------------------- loop: {}'.format(count))
+            print('----------------------------- loop: {} timestamp: {}'.format(count, datetime.datetime.now()))
             self.doScrape()
             self.clearTempLists()
             print('-----------------------------')
