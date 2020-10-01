@@ -5,7 +5,8 @@ import smtplib
 import sys
 import time
 from datetime import date
-from email.message import EmailMessage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from pprint import pprint
 
 import gspread
@@ -70,11 +71,11 @@ class Session():
         server.login(username, password)
 
         # Send an email to each of the addresses in the email list with the given message.
-        message = '''\
-            From: The Tutorly Team\r\n\
-            Subject: New COVID-19 case confirmed at SPU\r\n\r\n\
-            {}'''.format(body)
-        server.sendmail(username, self.emails, message)
+        message = MIMEMultipart()
+        message['From'] = 'The Tutorly Team'
+        message['Subject'] = 'New COVID-19 case confirmed at SPU'
+        message.attach(body)
+        server.sendmail(username, self.emails, message.as_string())
         server.quit()
 
         # Log the emails that were sent to the console for reference.
