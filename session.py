@@ -129,6 +129,7 @@ class Session():
         if len(self.cases) != len(self.dates):
             sys.exit('ERROR. Cases list length: {}. Dates list length: {}'.format(
                 len(self.cases), len(self.dates)))
+
         # Check for a new case
         self.isNewCase()
 
@@ -178,12 +179,15 @@ class Session():
         sheet = client.open("SPU COVID-19 Tracking")
         caseLog = sheet.worksheet('caseLog')
         
+        # Write self.dates to gsheets
         count = 2 # count is 2 because we start populating spreadsheet at row 2 (1 is headers)
         for date in self.dates:
             caseLog.update_cell(count, 1, date)
             count = count + 1
-        count = 2
         
+        
+        # Write self.cases to gsheets
+        count = 2
         for case in self.cases:
             caseLog.update_cell(count, 2, case)
             count = count + 1
