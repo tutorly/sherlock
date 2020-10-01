@@ -170,24 +170,27 @@ class Session():
         self.emails.clear()
 
     def writeListsToGoogleSheet(self):
+        """
+        This function writes the contents of self.dates and self.cases to SPU COVID-19 Tracking Google Sheet. This sheet is available on the Tutorlyeducation gmail account.
+        """
         # self.doScrape()
         scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
         client = gspread.authorize(creds)
-        sheet = client.open("SPU COVID-19 Tracking")
-        caseLog = sheet.worksheet('caseLog')
+        workbook = client.open("SPU COVID-19 Tracking")
+        sheet = workbook.worksheet('caseLog')
         
         # Write self.dates to gsheets
         count = 2 # count is 2 because we start populating spreadsheet at row 2 (1 is headers)
         for date in self.dates:
-            caseLog.update_cell(count, 1, date)
+            sheet.update_cell(count, 1, date)
             count = count + 1
         
         
         # Write self.cases to gsheets
         count = 2
         for case in self.cases:
-            caseLog.update_cell(count, 2, case)
+            sheet.update_cell(count, 2, case)
             count = count + 1
 
         print('Data updated in google sheets')
