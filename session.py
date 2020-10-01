@@ -51,7 +51,7 @@ class Session():
         f.close()
         return count
 
-    def sendEmails(self, message):
+    def sendEmails(self, body):
         """
         Sends emails to specified list of recipients.
         """
@@ -68,14 +68,19 @@ class Session():
         server.starttls() # Enable TLS encryption so our password will be encrypted.
         server.login(username, password)
 
-        # Send an email to 
-        server.sendmail(username, self.emails,
-                      'Subject: New COVID-19 case confirmed at SPU \n\n{}'.format(message))
+        # Send an email to each of the addresses in the email list with the given message.
+        message = (
+            'From: The Tutorly Team'
+            'Subject: New COVID-19 case confirmed at SPU'
+            '\n{}'.format(body)
+        )
+        server.sendmail(username, self.emails, message)
         server.quit()
-        print('Sent emails to:\n')
-        for i in range(len(self.emails)):
-            print(self.emails[i])
-        print('')
+
+        # Log the emails that were sent to the console for reference.
+        emailList = self.emails
+        print('Sent {} emails to:\n'.format(len(emailList)))
+        print(*emailList, sep = '\n') # Prints each email address from the list on its own line.
 
     def setNumCases(self, cases):
         """
