@@ -120,13 +120,13 @@ class Session():
         for element in tree.xpath(path_to_dates):
             self.dates.append(element)
 
-        # Clean up the lists
-        self.cleanLists()
-
         # Check to make sure length is the same for both lists
         if len(self.cases) != len(self.dates):
             sys.exit('ERROR. Cases list length: {}. Dates list length: {}'.format(
                 len(self.cases), len(self.dates)))
+            
+        # Clean up the lists
+        self.cleanLists()
 
         # Check for a new case
         self.isNewCase()
