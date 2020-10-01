@@ -153,10 +153,8 @@ class Session():
         df = pd.DataFrame(sherlock.get_all_records())
         df = df.replace('', np.nan)
         df = df.dropna()
-        print(df)
         for email in df['emails']:
             self.emails.append(email)
-            print('{} added to list'.format(email))
 
     def clearTempLists(self):
         """
