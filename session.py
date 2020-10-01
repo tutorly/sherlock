@@ -96,7 +96,6 @@ class Session():
         This function scrapes the url contained in self.url and looks for a specific html tag's xpath that contains new SPU covid cases. It itterates over the elements within and appends
         the values to self.cases and self.dates.
         """
-        # Setup for lxml
         website_up = False
         while(website_up == False):
             # This logic exists so that the bot does not die if the website is down.
@@ -107,7 +106,7 @@ class Session():
                 print('Could not connect to {}... Retrying in 5 seconds.'.format(self.url))
                 time.sleep(5)
         
-        # This is the path to the div that stores the updated data
+        # This is the path to the div that stores the updated data (lxml lib)
         tree = html.fromstring(page.content)
         path_to_cases = '//*[@id="pageBody"]/div/p/text()'
         path_to_dates = '//*[@id="pageBody"]/div/p/strong/text()'
@@ -148,7 +147,7 @@ class Session():
         """
         Get emails from google sheets api and adds contents to self.emails list.
         """
-        # Connect with our google sheet. The creds.json is hidden by default. Soren has access to it. 
+        # Connect with our google sheet. The creds.json is hidden by default. (You can find this file by searching 'creds.json' in development slack channel.)
         scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
         client = gspread.authorize(creds)
