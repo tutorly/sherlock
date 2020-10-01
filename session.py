@@ -36,7 +36,7 @@ class Session():
         while(1):
             print('----------------------------- loop: {} timestamp: {}'.format(count, datetime.datetime.now()))
             self.doScrape()
-            self.writeListsToGoogleSheet()
+            self.writeListsToGoogleSheet() # @Soren, is this ready yet?
             self.clearTempLists()
             print('-----------------------------')
             count = count + 1
@@ -55,19 +55,23 @@ class Session():
         """
         Sends emails to specified list of recipients.
         """
-        # Env vars used.
-        username = 'covid@tutorly.app'
-        password = os.getenv('covid_tutorly_password')
+        # Pull an updated list of emails from Google Sheets and update self.emails
+        self.getEmails()
 
-        self.getEmails() # This gets emails and adds them to self.emails class variable
-        conn = smtplib.SMTP('smtp.gmail.com', 587)  # smtp address and port
-        conn.ehlo()  # call this to start the connection
-        # starts tls encryption. When we send our password it will be encrypted.
-        conn.starttls()
-        conn.login(username, password)
-        conn.sendmail(username, self.emails,
+        # Initialize a connection to the Gmail SMTP server on port 587.
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.ehlo() # Initialize SMTP connection with an EHLO call.        
+
+        # Use TLS encryption and log into the SMTP server with user credentials.
+        username = 'covid@tutorly.app'
+        password = os.getenv('covid_tutorly_password') # pull password from local environment variables
+        server.starttls() # Enable TLS encryption so our password will be encrypted.
+        server.login(username, password)
+
+        # Send an email to 
+        server.sendmail(username, self.emails,
                       'Subject: New COVID-19 case confirmed at SPU \n\n{}'.format(message))
-        conn.quit()
+        server.quit()
         print('Sent emails to:\n')
         for i in range(len(self.emails)):
             print(self.emails[i])
@@ -194,7 +198,7 @@ class Session():
 
     def isNewCase(self):
         """
-        This function checks if  there is a new case by looking at the length of the self.cases list length and
+        This function checks if there is a new case by looking at the length of the self.cases list length and
         cross referencing it with the cases.txt number.
         """
         current_num_cases = len(self.cases)
