@@ -61,8 +61,7 @@ class Session():
         self.getEmails()
 
         # Initialize a connection to the Gmail SMTP server on port 587.
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        #server.ehlo() # Initialize SMTP connection with an EHLO call.        
+        server = smtplib.SMTP('smtp.gmail.com', 587)        
 
         # Use TLS encryption and log into the SMTP server with user credentials.
         username = 'covid@tutorly.app'
