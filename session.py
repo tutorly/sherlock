@@ -5,6 +5,7 @@ import smtplib
 import sys
 import time
 from datetime import date
+from email.message import EmailMessage
 from pprint import pprint
 
 import gspread
@@ -70,9 +71,8 @@ class Session():
 
         # Send an email to each of the addresses in the email list with the given message.
         message = '''\
-            From: The Tutorly Team\n
-            Subject: New COVID-19 case confirmed at SPU\n
-            
+            From: The Tutorly Team\r\n\
+            Subject: New COVID-19 case confirmed at SPU\r\n\r\n\
             {}'''.format(body)
         server.sendmail(username, self.emails, message)
         server.quit()
