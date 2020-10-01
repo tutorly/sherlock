@@ -55,7 +55,7 @@ class Session():
 
     def sendEmails(self, body):
         """
-        Sends emails to specified list of recipients.
+        Send emails using smpt library to every email in the self.emails list.
         """
         # Pull an updated list of emails from Google Sheets and update self.emails
         self.getEmails()
@@ -85,7 +85,7 @@ class Session():
 
     def setNumCases(self, cases):
         """
-        This function will write the last scraped value to the txt file.
+        This function will write the last scraped value to cases.txt.
         """
         f = open('cases.txt', 'w')
         f.write(str(cases))
@@ -93,7 +93,8 @@ class Session():
 
     def doScrape(self):
         """
-        Add something insightful here.
+        This function scrapes the url contained in self.url and looks for a specific html tag's xpath that contains new SPU covid cases. It itterates over the elements within and appends
+        the values to self.cases and self.dates.
         """
         # Setup for lxml
         website_up = False
