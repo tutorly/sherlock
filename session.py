@@ -186,7 +186,6 @@ class Session():
             sheet.update_cell(count, 1, date)
             count = count + 1
         
-        
         # Write self.cases to gsheets
         count = 2
         for case in self.cases:
