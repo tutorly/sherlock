@@ -65,6 +65,7 @@ class Session():
         # Use TLS encryption and log into the SMTP server with user credentials.
         username = 'covid@tutorly.app'
         password = os.getenv('covid_tutorly_password') # pull password from local environment variables
+        print(password)
         server.starttls() # Enable TLS encryption so our password will be encrypted.
         server.login(username, password)
 
