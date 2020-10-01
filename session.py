@@ -98,7 +98,6 @@ class Session():
             except:
                 print('Could not connect to {}... Retrying in 5 seconds.'.format(self.url))
                 time.sleep(5)
-
         page = requests.get(self.url)
         tree = html.fromstring(page.content)
         # This is the path to the div that stores the updated data
