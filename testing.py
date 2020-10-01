@@ -14,7 +14,7 @@ from pprint import pprint
 import pandas as pd
 import numpy as np
 
-def writeEmailsToGoogleSheets(self):
+def writeDataToGoogleSheets(self):
     """
     Write this later. This is for data visualiation.
     """
@@ -25,11 +25,8 @@ def writeEmailsToGoogleSheets(self):
     caseLog = sheet.worksheet('caseLog')
 
     # Write emails to spreadsheet
-    for i in len(self.emails):
-        caseLog.update_cell(i, 1, self.emails[i - 1])
-
-    # Write names to spreadsheet
     for i in len(self.dates):
-        caseLog.update_cell(i, 2, self.dates[i - 1])
+        caseLog.update_cell(i, 1, self.dates[i - 1])
+
 
 

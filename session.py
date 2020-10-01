@@ -37,6 +37,7 @@ class Session():
         while(1):
             print('----------------------------- loop: {} timestamp: {}'.format(count, datetime.datetime.now()))
             self.doScrape()
+            self.writeListsToGoogleSheet()
             self.clearTempLists()
             print('-----------------------------')
             count = count + 1
@@ -141,7 +142,7 @@ class Session():
 
     def getEmails(self):
         """
-        Get emails from google sheets api and add contents to self.emails list.
+        Get emails from google sheets api and adds contents to self.emails list.
         """
         # Connect with our google sheet. The creds.json is hidden by default. Soren has access to it. 
         scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
@@ -165,3 +166,29 @@ class Session():
         self.cases.clear()
         self.dates.clear()
         self.emails.clear()
+
+    def writeListsToGoogleSheet(self):
+        # self.doScrape()
+        scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+        client = gspread.authorize(creds)
+        sheet = client.open("SPU COVID-19 Tracking")
+        caseLog = sheet.worksheet('caseLog')
+        
+        count = 2 # count is 2 because we start populating spreadsheet at row 2 (1 is headers)
+        for date in self.dates:
+            caseLog.update_cell(count, 1, date)
+            count = count + 1
+        count = 2
+        
+        for case in self.cases:
+            caseLog.update_cell(count, 2, case)
+            count = count + 1
+
+        print('Data updated in google sheets')
+
+    def postToTwitter(self):
+        pass
+
+    def cleanLists(self):
+        pass
