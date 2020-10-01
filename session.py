@@ -202,7 +202,7 @@ class Session():
 
     def cleanLists(self):
         """
-        The goal of this function is to make all of the data uniform.
+        The goal of this function is to make all of the data uniform. Unfinished logic.
         """
         # Fix cases list
         for case in self.cases:
