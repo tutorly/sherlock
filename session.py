@@ -56,13 +56,9 @@ class Session():
         """
         Sends emails to specified list of recipients.
         """
-        # This is an env var that stores the tutorly gmail temp password. Your local machine must be configured to have this.
+        # Env vars used.
         username = 'covid@tutorly.app'
         password = os.getenv('covid_tutorly_password')
-        
-        # ----------------- E-Mail List ----------------------
-        toAddress = self.emails
-        # -----------------------------------------------------
 
         self.getEmails() # This gets emails and adds them to self.emails class variable
         conn = smtplib.SMTP('smtp.gmail.com', 587)  # smtp address and port
@@ -70,12 +66,12 @@ class Session():
         # starts tls encryption. When we send our password it will be encrypted.
         conn.starttls()
         conn.login(username, password)
-        conn.sendmail(username, toAddress,
+        conn.sendmail(username, self.emails,
                       'Subject: New COVID-19 case confirmed at SPU \n\n{}'.format(message))
         conn.quit()
         print('Sent emails to:\n')
-        for i in range(len(toAddress)):
-            print(toAddress[i])
+        for i in range(len(self.emails)):
+            print(self.emails[i])
         print('')
 
     def setNumCases(self, cases):
@@ -107,38 +103,30 @@ class Session():
         path_to_dates = '//*[@id="pageBody"]/div/p/strong/text()'
         # Get cases and add to cases list
         for element in tree.xpath(path_to_cases):
-            element = element.replace(u'\xa0', u'')
+            # element = element.replace(u'\xa0', u'')
             self.cases.append(element)
         # Get dates and append to dates list
         for element in tree.xpath(path_to_dates):
-            element = element.replace(u'\xa0', u'')
+            # element = element.replace(u'\xa0', u'')
             self.dates.append(element)
+        # Clean up the lists
+        self.cleanLists()
         # Check to make sure length is the same for both lists
         if len(self.cases) != len(self.dates):
             sys.exit('ERROR. Cases list length: {}. Dates list length: {}'.format(
                 len(self.cases), len(self.dates)))
-        # Store the number of cases
-        current_num_cases = len(self.cases)
-        print('Found {} cases on last scrape.'.format(current_num_cases))
-        # Check if cases has changes
-        if int(self.getStoredCases()) != current_num_cases:
-            new_case_string = str('{}: {}'.format(self.dates[0], self.cases[0]))
-            self.sendEmails(new_case_string) # TODO Change this into notify function so that I can do emails/twitter/other things
-            self.setNumCases(current_num_cases)
-        # Cases Output
-        for x in range(0, current_num_cases):
-            print('{}: {}'.format(self.dates[x], self.cases[x]))
-        # Get the date from SPU website
-        spu_last_updated = str(tree.xpath(
-            '//*[@id="pageBody"]/div/p[6]/em/text()'))
-        date_spu_last_updated = spu_last_updated.strip(
-            "['Last updated: ']",)  # TODO FIX THIS WARNING
+        # Check for a new case
+        self.isNewCase()
+
+         # Get the date from SPU website
+        raw_spu_date = str(tree.xpath('//*[@id="pageBody"]/div/p[6]/em/text()'))
+        last_spu_update = raw_spu_date.strip("['Last updated: ']")  # TODO FIX THIS WARNING
         # Format today's date
         today = str(date.today()).split('-')
         today = '{}/{}/{}'.format(today[1], today[2], today[0])
-        # Dates output
-        print('Last Update From SPU: ', date_spu_last_updated)
+        print('Last Update From SPU: ', last_spu_update)
         print('Last Update From Tutorly: ', today)
+       
 
     def getEmails(self):
         """
@@ -188,7 +176,38 @@ class Session():
         print('Data updated in google sheets')
 
     def postToTwitter(self):
+        """
+        Posts the most recent SPU case to a tutorly twitter account.
+        """
         pass
 
     def cleanLists(self):
-        pass
+        """
+        The goal of this function is to make all of the data uniform.
+        """
+        # Fix cases list
+        for case in self.cases:
+            case = case.replace(u'\xa0', u'') # TODO THESE DONT WORK RIGHT NOW
+
+        # Fix dates list
+        for date in self.dates:
+            date = date.replace(u'\xa0', u'')
+
+    def isNewCase(self):
+        """
+        This function checks if  there is a new case by looking at the length of the self.cases list length and
+        cross referencing it with the cases.txt number.
+        """
+        current_num_cases = len(self.cases)
+        print('Found {} cases on last scrape.'.format(current_num_cases))
+
+        # Check if cases has changes
+        if int(self.getStoredCases()) != current_num_cases:
+            newest_case = str('{}: {}'.format(self.dates[0], self.cases[0]))
+            self.sendEmails(newest_case) # TODO Change this into notify function so that I can do emails/twitter/other things
+            self.setNumCases(current_num_cases)
+            
+        # Print cases
+        for x in range(0, current_num_cases):
+            print('{}: {}'.format(self.dates[x], self.cases[x]))
+        
