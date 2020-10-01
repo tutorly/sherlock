@@ -45,12 +45,12 @@ class Session():
 
     def getStoredCases(self):
         """
-        This function will read cases.txt and return the count.
+        This function will read cases.txt and return the count as an integer.
         """
         f = open('cases.txt')
         count = f.read()
         f.close()
-        return count
+        return int(count)
 
     def sendEmails(self, body):
         """
