@@ -65,7 +65,6 @@ class Session():
         # Use TLS encryption and log into the SMTP server with user credentials.
         username = 'covid@tutorly.app'
         password = os.getenv('covid_tutorly_password') # pull password from local environment variables
-        print(password)
         server.starttls() # Enable TLS encryption so our password will be encrypted.
         server.login(username, password)
 
@@ -106,20 +105,24 @@ class Session():
                 print('Could not connect to {}... Retrying in 5 seconds.'.format(self.url))
                 time.sleep(5)
         
-        tree = html.fromstring(page.content)
         # This is the path to the div that stores the updated data
+        tree = html.fromstring(page.content)
         path_to_cases = '//*[@id="pageBody"]/div/p/text()'
         path_to_dates = '//*[@id="pageBody"]/div/p/strong/text()'
+
         # Get cases and add to cases list
         for element in tree.xpath(path_to_cases):
-            # element = element.replace(u'\xa0', u'')
+            element = element.replace(u'\xa0', u'')
             self.cases.append(element)
+
         # Get dates and append to dates list
         for element in tree.xpath(path_to_dates):
-            # element = element.replace(u'\xa0', u'')
+            element = element.replace(u'\xa0', u'')
             self.dates.append(element)
+
         # Clean up the lists
         self.cleanLists()
+
         # Check to make sure length is the same for both lists
         if len(self.cases) != len(self.dates):
             sys.exit('ERROR. Cases list length: {}. Dates list length: {}'.format(
@@ -130,6 +133,7 @@ class Session():
          # Get the date from SPU website
         raw_spu_date = str(tree.xpath('//*[@id="pageBody"]/div/p[6]/em/text()'))
         last_spu_update = raw_spu_date.strip("['Last updated: ']")  # TODO FIX THIS WARNING
+        
         # Format today's date
         today = str(date.today()).split('-')
         today = '{}/{}/{}'.format(today[1], today[2], today[0])
