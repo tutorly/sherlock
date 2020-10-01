@@ -1,19 +1,18 @@
-# Imports
-import requests
-import json
-from lxml import html
-import sys
-from datetime import date
 import datetime
+import json
 import os
-import time
 import smtplib
-import os
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+import sys
+import time
+from datetime import date
 from pprint import pprint
-import pandas as pd
+
+import gspread
 import numpy as np
+import pandas as pd
+import requests
+from lxml import html
+from oauth2client.service_account import ServiceAccountCredentials
 
 
 class Session():
