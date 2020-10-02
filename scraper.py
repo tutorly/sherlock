@@ -1,9 +1,14 @@
+import time
+
 import requests
+from lxml import html
 
 class WebScraper():
     '''Exposes a simple API used to scrape a static webpage.'''
 
-    SPU_COVID_URL = 'https://spu.edu/administration/health-services/covid-19-cases'
+    # Compile-time constant values (I put them here for easy access, not sure if this is 'pythonic' or not).
+    SPU_COVID_URL = 'https://spu.edu/administration/health-services/covid-19-cases' # The default website to scrape
+    TIMEOUT_DURATION = 60 # The number of seconds to wait before trying to re-establish a connection to the webpage.
 
     def cleanLists(self):
         """
@@ -32,7 +37,24 @@ class WebScraper():
         for x in range(0, current_num_cases):
             print('{}: {}'.format(self.dates[x], self.cases[x]))
 
-    def getHTML
+    def getHTMLFromURL(self, url):
+        '''
+        Makes a server request for the given url, ensures the response is ok, then returns a formatted html object.
+        
+        Parameter:
+            url -- the path to the static site you want to scrape
+        '''
+        
+        # Make a request to the server and wait for the response, retry if the website is down.
+        response = requests.get(url)
+        if (response.status_code != 200):
+            # sendAdminEmail() TODO
+            print(f'Could not connect to {url}. Retrying in {self.TIMEOUT_DURATION} seconds...')
+            time.sleep(self.TIMEOUT_DURATION)
+            self.getHTMLFromURL(url)
+        else:
+            return html.fromstring(response.content)
+
 
     def doScrape(self):
         """
@@ -41,20 +63,6 @@ class WebScraper():
         the values to self.cases and self.dates.
         """
 
-        response = requests.get(self.SPU_COVID_URL)
-
-
-
-        # website_up = False
-        # while(website_up == False):
-        #     # This logic exists so that the bot does not die if the website is down.
-        #     try:
-        #         page = requests.get(self.url)
-        #         website_up = True
-        #     except:
-        #         print('Could not connect to {}... Retrying in 5 seconds.'.format(self.url))
-        #         # sendAdminEmail() TODO
-        #         time.sleep(5)
         
         # This is the path to the div that stores the updated data (lxml lib)
         tree = html.fromstring(page.content)
