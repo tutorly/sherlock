@@ -75,7 +75,7 @@ class Session():
         final_body = 'New case from SPU website. {}'.format(body)
         plainTextBody = MIMEText(final_body, 'plain')
         message.attach(plainTextBody)
-        server.sendmail(username, self.emails, message.as_string())
+        # server.sendmail(username, self.emails, message.as_string()) # Commented out for safety
         server.quit()
 
         # Log the emails that were sent to the console for reference.

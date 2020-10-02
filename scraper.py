@@ -8,31 +8,39 @@ class WebScraper():
     '''Exposes a simple API used to scrape a static webpage.'''
 
     # Compile-time constant values (I put them here for easy access, not sure if this is 'pythonic' or not).
-    SPU_COVID_URL = 'https://spu.edu/administration/health-services/covid-19-cases' # The default website to scrape
     TIMEOUT_DURATION = 60 # The number of seconds to wait before trying to re-establish a connection to the webpage.
+    SPU_COVID_URL = 'https://spu.edu/administration/health-services/covid-19-cases' # The default website to scrape.
+    PATH_TO_CASES = '//*[@id="pageBody"]/div/p/text()'
+    PATH_TO_DATES = '//*[@id="pageBody"]/div/p/strong/text()'
+    PATH_TO_SPU_DATE = '//*[@id="pageBody"]/div/p[6]/em/text()'
+    CASES = []
+    DATES = []
 
-    def run(self):
-        tree = self.getHTMLFromURL()
-        self.parseDateFromHTML(tree)
-        self.parseCasesFromHTML(tree)
+    def scrape(self):
+        htmlData = self.getHTMLFromURL(self.SPU_COVID_URL)
+        self.parseDateFromHTML(htmlData)
+        self.parseCasesFromHTML(htmlData)
 
 
     def cleanLists(self):
-        """
-        The goal of this function is to make all of the data uniform. Unfinished logic.
-        """
+        '''The goal of this function is to make all of the data uniform.'''
+        # Check to make sure length is the same for both lists
+        if len(self.CASES) != len(self.DATES):
+            msg = f'ERROR. Cases list length: {len(self.CASES)}. Dates list length: {len(self.DATES)}'
+            self.sendAdminEmail(msg)
+
         # Look for all \xa0 characters and remove them
-        for i in range(0, len(self.cases) - 1):
-            self.cases[i] = self.cases[i].replace(u'\xa0', ' ').strip()
-            self.dates[i] = self.dates[i].replace(u'\xa0', ' ').strip()
+        for i in range(0, len(self.CASES) - 1):
+            self.CASES[i] = self.CASES[i].replace(u'\xa0', ' ').strip()
+            self.DATES[i] = self.DATES[i].replace(u'\xa0', ' ').strip()
 
     def isNewCase(self):
         """
         This function checks if there is a new case by looking at the length of the self.cases list length and
         cross referencing it with the cases.txt number.
         """
-        current_num_cases = len(self.cases)
-        print('Found {} cases on last scrape.'.format(current_num_cases))
+        current_num_cases = len(self.CASES)
+        print(f'Found {current_num_cases} cases on last scrape.')
 
         # Check if cases has changes
         if int(self.getStoredCases()) != current_num_cases:
@@ -46,7 +54,6 @@ class WebScraper():
 
     def getHTMLFromURL(self, url):
         '''Makes a server request for the given url, ensures the response is ok, then returns a formatted html object.'''
-        
         try:
             response = requests.get(url) # Attempt to make a request to the server and wait for the response.
             if (response.status_code != 200): # If the response is not 200 (ok), wait and try again (recursively).
@@ -60,30 +67,29 @@ class WebScraper():
             # TODO sendAdminEmail() # In the event of a network problem, requests will raise a ConnectionError exception.
             pass
 
+    def sendAdminEmail(self, msg):
+        '''Sends an email to the admin with the given message (Unimplemented).'''
+        print(msg)
+        pass
+
+    def parseDateFromHTML(self, htmlData):
+        '''Parses the dates from the given HTML and adds them to the DATES array.'''
+        # Get dates and append to dates list
+        for element in htmlData.xpath(self.PATH_TO_DATES):
+            self.DATES.append(element)
+
+    def parseCasesFromHTML(self, htmlData):
+        '''Parses the cases from the given HTML and adds them to the CASES array.'''
+        # Get cases and add to cases list
+        for element in htmlData.xpath(self.PATH_TO_CASES):
+            self.CASES.append(element)
+
     def doScrape(self):
         """
         This function scrapes the url contained in self.url and looks for a specific html tag's xpath
         that contains new SPU covid cases. It iterates over the elements within and appends
         the values to self.cases and self.dates.
         """
-
-        # This is the path to the div that stores the updated data (lxml lib)
-        tree = self.getHTMLFromURL(self.SPU_COVID_URL)
-
-        # Get cases and add to cases list
-        path_to_cases = '//*[@id="pageBody"]/div/p/text()'
-        for element in tree.xpath(path_to_cases):
-            self.cases.append(element)
-
-        # Get dates and append to dates list
-        path_to_dates = '//*[@id="pageBody"]/div/p/strong/text()'
-        for element in tree.xpath(path_to_dates):
-            self.dates.append(element)
-
-        # Check to make sure length is the same for both lists
-        if len(self.cases) != len(self.dates):
-            sys.exit('ERROR. Cases list length: {}. Dates list length: {}'.format(
-                len(self.cases), len(self.dates)))
             
         # Clean up the lists
         self.cleanLists()
@@ -92,7 +98,7 @@ class WebScraper():
         self.isNewCase()
 
          # Get the date from SPU website
-        raw_spu_date = str(tree.xpath('//*[@id="pageBody"]/div/p[6]/em/text()'))
+        raw_spu_date = str(tree.xpath(self.PATH_TO_SPU_DATE)[0])
         raw_spu_date = "Last updated: 10/2/20"
         last_spu_update = raw_spu_date.strip(['Last updated: '])  # TODO FIX THIS WARNING
         
