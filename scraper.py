@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 import requests
 from lxml import html
@@ -38,42 +39,38 @@ class WebScraper():
             print('{}: {}'.format(self.dates[x], self.cases[x]))
 
     def getHTMLFromURL(self, url):
-        '''
-        Makes a server request for the given url, ensures the response is ok, then returns a formatted html object.
+        '''Makes a server request for the given url, ensures the response is ok, then returns a formatted html object.'''
         
-        Parameter:
-            url -- the path to the static site you want to scrape
-        '''
-        
-        # Make a request to the server and wait for the response, retry if the website is down.
-        response = requests.get(url)
-        if (response.status_code != 200):
-            # sendAdminEmail() TODO
-            print(f'Could not connect to {url}. Retrying in {self.TIMEOUT_DURATION} seconds...')
-            time.sleep(self.TIMEOUT_DURATION)
-            self.getHTMLFromURL(url)
-        else:
-            return html.fromstring(response.content)
-
+        try:
+            response = requests.get(url) # Attempt to make a request to the server and wait for the response.
+            if (response.status_code != 200): # If the response is not 200 (ok), wait and try again (recursively).
+                print(f'Could not connect to {url}. Retrying in {self.TIMEOUT_DURATION} seconds...')
+                time.sleep(self.TIMEOUT_DURATION)
+                # TODO sendAdminEmail() # Notify admin that the website is down. (This would send as many emails as iterations of this method)
+                self.getHTMLFromURL(url) # TODO Make sure we don't overflow the call stack (TIMEOUT_DURATION must be reasonable)
+            else:
+                return html.fromstring(response.content) # Pull the content out of the response and format it as an HTML object
+        except ConnectionError:
+            # TODO sendAdminEmail() # In the event of a network problem, requests will raise a ConnectionError exception.
+            pass
 
     def doScrape(self):
         """
         This function scrapes the url contained in self.url and looks for a specific html tag's xpath
-        that contains new SPU covid cases. It itterates over the elements within and appends
+        that contains new SPU covid cases. It iterates over the elements within and appends
         the values to self.cases and self.dates.
         """
 
-        
         # This is the path to the div that stores the updated data (lxml lib)
-        tree = html.fromstring(page.content)
-        path_to_cases = '//*[@id="pageBody"]/div/p/text()'
-        path_to_dates = '//*[@id="pageBody"]/div/p/strong/text()'
+        tree = self.getHTMLFromURL(self.SPU_COVID_URL)
 
         # Get cases and add to cases list
+        path_to_cases = '//*[@id="pageBody"]/div/p/text()'
         for element in tree.xpath(path_to_cases):
             self.cases.append(element)
 
         # Get dates and append to dates list
+        path_to_dates = '//*[@id="pageBody"]/div/p/strong/text()'
         for element in tree.xpath(path_to_dates):
             self.dates.append(element)
 
@@ -90,11 +87,11 @@ class WebScraper():
 
          # Get the date from SPU website
         raw_spu_date = str(tree.xpath('//*[@id="pageBody"]/div/p[6]/em/text()'))
-        last_spu_update = raw_spu_date.strip("['Last updated: ']")  # TODO FIX THIS WARNING
+        raw_spu_date = "Last updated: 10/2/20"
+        last_spu_update = raw_spu_date.strip(['Last updated: '])  # TODO FIX THIS WARNING
         
-        # Format today's date
-        today = str(date.today()).split('-')
-        today = '{}/{}/{}'.format(today[1], today[2], today[0])
+        # Format of today's date: "Thu Oct 1 @ 10:57:01 PM" for more information about strftime, see https://strftime.org
+        today = datetime.today().strftime('%a %b %-d @ %-I:%M:%S %p')
         print('Last Update From SPU: ', last_spu_update)
         print('Last Update From Tutorly: ', today)
        
