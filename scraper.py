@@ -30,6 +30,35 @@ class WebScraper():
         # Check if there is a new case.
         self.isNewCase()
 
+        # Print the timestamps of the most recent data.
+        self.printTimestamps(htmlData)
+
+    def getHTMLFromURL(self, url):
+        '''Makes a server request for the given url, ensures the response is ok, then returns a formatted html object.'''
+        try:
+            response = requests.get(url) # Attempt to make a request to the server and wait for the response.
+            if (response.status_code != 200): # If the response is not 200 (OK), wait and try again (recursively).
+                print(f'Could not connect to {url}. Retrying in {self.TIMEOUT_DURATION} seconds...')
+                time.sleep(self.TIMEOUT_DURATION)
+                self.sendAdminEmail('Help! The SPU page is down!') # TODO This will send as many emails as calls of this method
+                self.getHTMLFromURL(url) # TODO Make sure we don't overflow the call stack (TIMEOUT_DURATION must be reasonable)
+            else:
+                return html.fromstring(response.content) # Pull the content out of the response and format it as an HTML object
+        except ConnectionError:
+            self.sendAdminEmail('Sherlock died due to a connection error. Send help.')
+            pass
+
+    def parseDateFromHTML(self, htmlData):
+        '''Parses the dates from the given HTML and adds them to the DATES array.'''
+        # Get dates and append to dates list
+        for element in htmlData.xpath(self.PATH_TO_DATES):
+            self.DATES.append(element)
+
+    def parseCasesFromHTML(self, htmlData):
+        '''Parses the cases from the given HTML and adds them to the CASES array.'''
+        # Get cases and add to cases list
+        for element in htmlData.xpath(self.PATH_TO_CASES):
+            self.CASES.append(element)
 
     def cleanLists(self):
         '''The goal of this function is to make all of the data uniform.'''
@@ -48,6 +77,11 @@ class WebScraper():
         This function checks if there is a new case by looking at the length of the self.cases list length and
         cross referencing it with the cases.txt number (USE DATABASE MODULE).
         """
+
+        ####################################
+        # TALK TO JUSTIN ABOUT THIS METHOD #
+        ####################################
+
         # current_num_cases = len(self.CASES)
         # print(f'Found {current_num_cases} cases on last scrape.')
 
@@ -61,39 +95,8 @@ class WebScraper():
         # for x in range(0, current_num_cases):
         #     print('{}: {}'.format(self.dates[x], self.cases[x]))
 
-    def getHTMLFromURL(self, url):
-        '''Makes a server request for the given url, ensures the response is ok, then returns a formatted html object.'''
-        try:
-            response = requests.get(url) # Attempt to make a request to the server and wait for the response.
-            if (response.status_code != 200): # If the response is not 200 (ok), wait and try again (recursively).
-                print(f'Could not connect to {url}. Retrying in {self.TIMEOUT_DURATION} seconds...')
-                time.sleep(self.TIMEOUT_DURATION)
-                # TODO sendAdminEmail() # Notify admin that the website is down. (This would send as many emails as iterations of this method)
-                self.getHTMLFromURL(url) # TODO Make sure we don't overflow the call stack (TIMEOUT_DURATION must be reasonable)
-            else:
-                return html.fromstring(response.content) # Pull the content out of the response and format it as an HTML object
-        except ConnectionError:
-            # TODO sendAdminEmail() # In the event of a network problem, requests will raise a ConnectionError exception.
-            pass
-
-    def sendAdminEmail(self, msg):
-        '''Sends an email to the admin with the given message (Unimplemented).'''
-        print(msg)
-        pass
-
-    def parseDateFromHTML(self, htmlData):
-        '''Parses the dates from the given HTML and adds them to the DATES array.'''
-        # Get dates and append to dates list
-        for element in htmlData.xpath(self.PATH_TO_DATES):
-            self.DATES.append(element)
-
-    def parseCasesFromHTML(self, htmlData):
-        '''Parses the cases from the given HTML and adds them to the CASES array.'''
-        # Get cases and add to cases list
-        for element in htmlData.xpath(self.PATH_TO_CASES):
-            self.CASES.append(element)
-
     def printTimestamps(self, htmlData):
+        '''Prints a formatted timestamp of the last SPU update and the last Tutorly update.'''
         # Get the date from SPU website
         raw_spu_date = str(htmlData.xpath(self.PATH_TO_SPU_DATE)[0])
         raw_spu_date = "Last updated: 10/2/20"
@@ -103,4 +106,9 @@ class WebScraper():
         today = datetime.today().strftime('%a %b %-d @ %-I:%M:%S %p')
         print('Last Update From SPU: ', last_spu_update)
         print('Last Update From Tutorly: ', today)
+    
+    def sendAdminEmail(self, msg):
+        '''Sends an email to the admin with the given message (Unimplemented).'''
+        print(msg)
+        pass
        
