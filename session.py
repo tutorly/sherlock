@@ -72,7 +72,8 @@ class Session():
         message = MIMEMultipart()
         message['From'] = 'The Tutorly Team'
         message['Subject'] = 'New COVID-19 case confirmed at SPU'
-        plainTextBody = MIMEText(body, 'plain')
+        final_body = 'New case from SPU website. {}'.format(body)
+        plainTextBody = MIMEText(final_body, 'plain')
         message.attach(plainTextBody)
         server.sendmail(username, self.emails, message.as_string())
         server.quit()
