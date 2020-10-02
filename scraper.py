@@ -11,6 +11,12 @@ class WebScraper():
     SPU_COVID_URL = 'https://spu.edu/administration/health-services/covid-19-cases' # The default website to scrape
     TIMEOUT_DURATION = 60 # The number of seconds to wait before trying to re-establish a connection to the webpage.
 
+    def run(self):
+        tree = self.getHTMLFromURL()
+        self.parseDateFromHTML(tree)
+        self.parseCasesFromHTML(tree)
+
+
     def cleanLists(self):
         """
         The goal of this function is to make all of the data uniform. Unfinished logic.
