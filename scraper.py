@@ -17,9 +17,18 @@ class WebScraper():
     DATES = []
 
     def scrape(self):
+        # Grab the HTML from the SPU covid url.
         htmlData = self.getHTMLFromURL(self.SPU_COVID_URL)
+
+        # Parse the date and case description from the html.
         self.parseDateFromHTML(htmlData)
         self.parseCasesFromHTML(htmlData)
+
+        # Clean the lists of extraneous characters.
+        self.cleanLists
+
+        # Check if there is a new case.
+        self.isNewCase()
 
 
     def cleanLists(self):
@@ -37,20 +46,20 @@ class WebScraper():
     def isNewCase(self):
         """
         This function checks if there is a new case by looking at the length of the self.cases list length and
-        cross referencing it with the cases.txt number.
+        cross referencing it with the cases.txt number (USE DATABASE MODULE).
         """
-        current_num_cases = len(self.CASES)
-        print(f'Found {current_num_cases} cases on last scrape.')
+        # current_num_cases = len(self.CASES)
+        # print(f'Found {current_num_cases} cases on last scrape.')
 
-        # Check if cases has changes
-        if int(self.getStoredCases()) != current_num_cases:
-            newest_case = str('{}: {}'.format(self.dates[0], self.cases[0]))
-            self.sendEmails(newest_case) # TODO Change this into notify function so that I can do emails/twitter/other things
-            self.setNumCases(current_num_cases)
+        # # Check if cases has changes
+        # if int(self.getStoredCases()) != current_num_cases:
+        #     newest_case = str('{}: {}'.format(self.dates[0], self.cases[0]))
+        #     self.sendEmails(newest_case) # TODO Change this into notify function so that I can do emails/twitter/other things
+        #     self.setNumCases(current_num_cases)
             
-        # Print cases
-        for x in range(0, current_num_cases):
-            print('{}: {}'.format(self.dates[x], self.cases[x]))
+        # # Print cases
+        # for x in range(0, current_num_cases):
+        #     print('{}: {}'.format(self.dates[x], self.cases[x]))
 
     def getHTMLFromURL(self, url):
         '''Makes a server request for the given url, ensures the response is ok, then returns a formatted html object.'''
@@ -84,23 +93,11 @@ class WebScraper():
         for element in htmlData.xpath(self.PATH_TO_CASES):
             self.CASES.append(element)
 
-    def doScrape(self):
-        """
-        This function scrapes the url contained in self.url and looks for a specific html tag's xpath
-        that contains new SPU covid cases. It iterates over the elements within and appends
-        the values to self.cases and self.dates.
-        """
-            
-        # Clean up the lists
-        self.cleanLists()
-
-        # Check for a new case
-        self.isNewCase()
-
-         # Get the date from SPU website
-        raw_spu_date = str(tree.xpath(self.PATH_TO_SPU_DATE)[0])
+    def printTimestamps(self, htmlData):
+        # Get the date from SPU website
+        raw_spu_date = str(htmlData.xpath(self.PATH_TO_SPU_DATE)[0])
         raw_spu_date = "Last updated: 10/2/20"
-        last_spu_update = raw_spu_date.strip(['Last updated: '])  # TODO FIX THIS WARNING
+        last_spu_update = raw_spu_date.strip(['Last updated: '])
         
         # Format of today's date: "Thu Oct 1 @ 10:57:01 PM" for more information about strftime, see https://strftime.org
         today = datetime.today().strftime('%a %b %-d @ %-I:%M:%S %p')
