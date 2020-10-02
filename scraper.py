@@ -7,25 +7,26 @@ from lxml import html
 class WebScraper():
     '''Exposes a simple API used to scrape a static webpage.'''
 
-    # Compile-time constant values (I put them here for easy access, not sure if this is 'pythonic' or not).
-    TIMEOUT_DURATION = 60 # The number of seconds to wait before trying to re-establish a connection to the webpage.
-    SPU_COVID_URL = 'https://spu.edu/administration/health-services/covid-19-cases' # The default website to scrape.
-    PATH_TO_CASES = '//*[@id="pageBody"]/div/p/text()'
-    PATH_TO_DATES = '//*[@id="pageBody"]/div/p/strong/text()'
-    PATH_TO_SPU_DATE = '//*[@id="pageBody"]/div/p[6]/em/text()'
-    CASES = []
-    DATES = []
+    def __init__(self):
+        # Compile-time constant values
+        self._timeout_duration = 60 # The number of seconds to wait before trying to re-establish a connection to the webpage.
+        self._spu_covid_url = 'https://spu.edu/administration/health-services/covid-19-cases' # The default website to scrape.
+        self._path_to_cases = '//*[@id="pageBody"]/div/p/text()'
+        self._path_to_dates = '//*[@id="pageBody"]/div/p/strong/text()'
+        self._path_to_last_spu_update = '//*[@id="pageBody"]/div/p[6]/em/text()'
+        self.cases = []
+        self.dates = []
 
     def scrape(self):
         # Grab the HTML from the SPU covid url.
-        htmlData = self.getHTMLFromURL(self.SPU_COVID_URL)
+        htmlData = self.getHTMLFromURL(self._spu_covid_url)
 
         # Parse the date and case description from the html.
         self.parseDateFromHTML(htmlData)
         self.parseCasesFromHTML(htmlData)
 
         # Clean the lists of extraneous characters.
-        self.cleanLists
+        self.cleanLists()
 
         # Check if there is a new case.
         self.isNewCase()
@@ -38,8 +39,8 @@ class WebScraper():
         try:
             response = requests.get(url) # Attempt to make a request to the server and wait for the response.
             if (response.status_code != 200): # If the response is not 200 (OK), wait and try again (recursively).
-                print(f'Could not connect to {url}. Retrying in {self.TIMEOUT_DURATION} seconds...')
-                time.sleep(self.TIMEOUT_DURATION)
+                print(f'Could not connect to {url}. Retrying in {self._timeout_duration} seconds...')
+                time.sleep(self._timeout_duration)
                 self.sendAdminEmail('Help! The SPU page is down!') # TODO This will send as many emails as calls of this method
                 self.getHTMLFromURL(url) # TODO Make sure we don't overflow the call stack (TIMEOUT_DURATION must be reasonable)
             else:
@@ -51,26 +52,26 @@ class WebScraper():
     def parseDateFromHTML(self, htmlData):
         '''Parses the dates from the given HTML and adds them to the DATES array.'''
         # Get dates and append to dates list
-        for element in htmlData.xpath(self.PATH_TO_DATES):
-            self.DATES.append(element)
+        for element in htmlData.xpath(self._path_to_dates):
+            self.dates.append(element)
 
     def parseCasesFromHTML(self, htmlData):
         '''Parses the cases from the given HTML and adds them to the CASES array.'''
         # Get cases and add to cases list
-        for element in htmlData.xpath(self.PATH_TO_CASES):
+        for element in htmlData.xpath(self._path_to_cases):
             self.CASES.append(element)
 
     def cleanLists(self):
         '''The goal of this function is to make all of the data uniform.'''
         # Check to make sure length is the same for both lists
-        if len(self.CASES) != len(self.DATES):
-            msg = f'ERROR. Cases list length: {len(self.CASES)}. Dates list length: {len(self.DATES)}'
+        if len(self.cases) != len(self.dates):
+            msg = f'ERROR. Cases list length: {len(self.cases)}. Dates list length: {len(self.dates)}'
             self.sendAdminEmail(msg)
 
         # Look for all \xa0 characters and remove them
-        for i in range(0, len(self.CASES) - 1):
-            self.CASES[i] = self.CASES[i].replace(u'\xa0', ' ').strip()
-            self.DATES[i] = self.DATES[i].replace(u'\xa0', ' ').strip()
+        for i in range(0, len(self.cases) - 1):
+            self.cases[i] = self.cases[i].replace(u'\xa0', ' ').strip()
+            self.dates[i] = self.dates[i].replace(u'\xa0', ' ').strip()
 
     def isNewCase(self):
         """
@@ -98,7 +99,7 @@ class WebScraper():
     def printTimestamps(self, htmlData):
         '''Prints a formatted timestamp of the last SPU update and the last Tutorly update.'''
         # Get the date from SPU website
-        raw_spu_date = str(htmlData.xpath(self.PATH_TO_SPU_DATE)[0])
+        raw_spu_date = str(htmlData.xpath(self._path_to_last_spu_update)[0])
         raw_spu_date = "Last updated: 10/2/20"
         last_spu_update = raw_spu_date.strip(['Last updated: '])
         
