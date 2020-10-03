@@ -7,7 +7,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 import requests
+from oauth2client.service_account import ServiceAccountCredentials
 from lxml import html
+import gspread
 from courier import Courier
 
 class Scraper():
@@ -80,4 +82,29 @@ class Scraper():
         today = datetime.today().strftime("%m/%d/%y")
         print('Last Update From SPU: ', last_spu_update)
         print('Last Update From Tutorly: ', today)
+
+    def writeListsToGoogleSheet(self):
+        """
+        This function writes the contents of self.dates and self.cases to SPU COVID-19 Tracking Google Sheet. 
+        This sheet is available on the Tutorlyeducation gmail account.
+        """
+        scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+        client = gspread.authorize(creds)
+        workbook = client.open("SPU COVID-19 Tracking")
+        sheet = workbook.worksheet('caseLog')
+        
+        # Write self.dates to gsheets
+        row = 2 # Row is 2 because we start populating spreadsheet at row 2 (1 is headers)
+        for date in self.dates:
+            sheet.update_cell(row, 1, date)
+            row = row + 1
+        
+        # Write self.cases to gsheets
+        row = 2
+        for case in self.cases:
+            sheet.update_cell(row, 2, case)
+            row = row + 1
+
+        print('Data updated in google sheets')
        

@@ -5,5 +5,10 @@ from scraper import Scraper
 from newSession import Session
 from courier import Courier
 
-Courier.sendAdminEmail('testing')
+session = Session()
+
+# Soren's testing
+session.scraper.scrape()
+session.scraper.writeListsToGoogleSheet()
+session.validator.getDataFromGoogleSheets()
 
