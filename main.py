@@ -8,7 +8,5 @@ from courier import Courier
 session = Session()
 
 # Soren's testing
-session.scraper.scrape()
-newCase = session.validator.checkForNewCase()
-print(f'New Case?: {newCase}')
+session.run()
 

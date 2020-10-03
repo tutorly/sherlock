@@ -1,22 +1,15 @@
 import datetime
-import json
 import os
 import smtplib
-import sys
-import time
 from datetime import date
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 import gspread
-import numpy as np
 import pandas as pd
 import requests
-from lxml import html
 from oauth2client.service_account import ServiceAccountCredentials
 
-# from scraper import Scraper
-from validator import Validator
 
 class Courier():
     '''
@@ -35,11 +28,13 @@ class Courier():
         mailing_list = Courier._getUpdatedMailingListFromGoogleSheets()
         sender_name = 'The Tutorly Team'
         subject = 'New COVID-19 case confirmed at SPU'
+        person = Courier._getMostRecentCovidCaseDescription()
+        time = datetime.today().strftime('%A, %B %Y') 
         body = f'{text} tested positive for COVID-19. More info: covid.tutorly.app\nSent at {time}'
         Courier._sendEmails(sender_name, mailing_list, subject, body)
 
     @staticmethod
-    def sendAdminEmail(msg):
+    def sendEmailsToAdminOnly(msg):
         '''Sends an email to the admins with the given message.'''
         sender_name = 'Sherlock Admin'
         admin_email_list = ['soren@tutorly.app', 'justin@tutorly.app', 'steven@tutorly.app']
@@ -47,7 +42,7 @@ class Courier():
         Courier._sendEmails(sender_name, admin_email_list, subject, msg)
 
     @staticmethod
-    def _getGoogleSheet(self, sheet_tab_name):
+    def _getGoogleSheet(sheet_tab_name):
         '''Returns a reference to the Google Sheet object with the given tab name.'''
 
         # Connect to the Google Sheets API and return the given sheet tab.
@@ -71,7 +66,7 @@ class Courier():
         '''
 
         # Read google sheet into a dataframe, drop blank rows, appends all emails to self.emails.
-        sherlock = self._getGoogleSheet('emails')
+        sherlock = Courier._getGoogleSheet('emails')
         df = pd.DataFrame(sherlock.get_all_records())
         df = df.replace('', np.nan)
         df = df.dropna()
@@ -81,6 +76,16 @@ class Courier():
         for email in df['emails']:
             mailing_list.append(email)
         return mailing_list
+
+    @staticmethod
+    def _getMostRecentCovidCaseDescription():
+        ''' Grabs the most recent case description from the Google Sheet'''
+
+        # Grab the google sheet
+        sherlock = Courier._getGoogleSheet('caseLog')
+        df = pd.DataFrame(sherlock.get_all_records())
+        case_description = df['case'][0]
+        return case_description
 
     @staticmethod
     def _sendEmails(msg_from, to_addrs, subject, body):

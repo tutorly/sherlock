@@ -42,12 +42,12 @@ class Scraper():
             if response.status_code != 200: # If the response is not 200 (OK), wait and try again (recursively).
                 print(f'Could not connect to {url}. Retrying in {self._timeout_duration} seconds...')
                 time.sleep(self._timeout_duration)
-                Courier.sendAdminEmail('Could not connect to SPU website.') # TODO Take this out at some point.
+                Courier.sendEmailsToAdminOnly('Could not connect to SPU website.') # TODO Take this out at some point.
                 self.getHTMLFromURL(url) # TODO Make sure we don't overflow the call stack (TIMEOUT_DURATION must be reasonable)
             else:
                 return html.fromstring(response.content) # Pull the content out of the response and format it as an HTML object
         except ConnectionError:
-            Courier.sendAdminEmail('Connection Error!')
+            Courier.sendEmailsToAdminOnly('Connection Error!')
 
     def _parseDataFromHTML(self, htmlData):
         '''To be written.'''
@@ -64,7 +64,7 @@ class Scraper():
         # Check to make sure length is the same for both lists
         if len(self.cases) != len(self.dates):
             msg = f'ERROR. Cases list length: {len(self.cases)}. Dates list length: {len(self.dates)}'
-            Courier.sendAdminEmail(msg)
+            Courier.sendEmailsToAdminOnly(msg)
 
         # Look for all \xa0 characters and remove them
         for i in range(0, len(self.cases) - 1):
@@ -109,7 +109,7 @@ class Scraper():
             row = row + 1
         print('Data updated in google sheets')
 
-    def emptyLists(self):
+    def cleanUp(self):
         '''Clear lists'''
         self.dates.clear()
         self.cases.clear()

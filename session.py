@@ -26,11 +26,19 @@ class Session():
         self.scraper = Scraper()
         self.validator = Validator()
         self.courier = Courier()
+        self.loopInterval = 60 # In seconds
 
     def run(self):
         '''This is the method that drives the entire program.'''
+        while(1):
+            print('-------------')
+            self.scraper.scrape()
+            print(f'New Case?: {self.validator.checkForNewCase()}')
+            self.cleanUp()
+            print('-------------')
+            time.sleep(self.loopInterval)
 
-    def clearTempLists(self):
+    def cleanUp(self):
         '''Clears lists from scraper, validator, and courier.'''
-        self.scraper.emptyLists()
-        self.validator.emptyLists()
+        self.scraper.cleanUp()
+        self.validator.cleanUp()

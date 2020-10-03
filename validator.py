@@ -21,6 +21,8 @@ class Validator():
         # If the last scrape is not equal to the previous number of cases.
         if self.num_cases_last_scraped != self.num_cases_recorded:
             self._updateCaseCount()
+            print(self.num_cases_last_scraped)
+            print(self.num_cases_recorded)
             return True
         else: return False
 
@@ -82,7 +84,9 @@ class Validator():
         # Update the cell!
         sheet.update_cell(1, 1, self.num_cases_last_scraped)
         
-    def emptyLists(self):
+    def cleanUp(self):
         '''Empty lists.'''
         self.dates.clear()
         self.cases.clear()
+        self.num_cases_recorded = 0
+        self.num_cases_last_scraped = 0
