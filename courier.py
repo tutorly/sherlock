@@ -1,7 +1,6 @@
-import datetime
 import os
 import smtplib
-from datetime import date
+from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -9,6 +8,7 @@ import gspread
 import pandas as pd
 import requests
 from oauth2client.service_account import ServiceAccountCredentials
+import numpy as np
 
 
 class Courier():
@@ -30,7 +30,7 @@ class Courier():
         subject = 'New COVID-19 case confirmed at SPU'
         person = Courier._getMostRecentCovidCaseDescription()
         time = datetime.today().strftime('%A, %B %Y') 
-        body = f'{text} tested positive for COVID-19. More info: covid.tutorly.app\nSent at {time}'
+        body = f'{person} tested positive for COVID-19. More info: covid.tutorly.app\nSent at {time}'
         Courier._sendEmails(sender_name, mailing_list, subject, body)
 
     @staticmethod
