@@ -46,9 +46,9 @@ class Courier():
         Courier._sendEmails(sender_name, admin_email_list, subject, msg)
 
     def _getGoogleSheet(self, sheet_tab_name):
-        '''Returns a reference to the sheet.workspace of a Google Sheet using the Google Sheets API.'''
+        '''Returns a reference to the Google Sheet object with the given tab name.'''
 
-        # Connect to the Google Sheets API and pull the given sheet tab.
+        # Connect to the Google Sheets API and return the given sheet tab.
         scope = [
             "https://spreadsheets.google.com/feeds",
             'https://www.googleapis.com/auth/spreadsheets',
@@ -68,12 +68,16 @@ class Courier():
         '''
 
         # Read google sheet into a dataframe, drop blank rows, appends all emails to self.emails.
-        sherlock = self._getGoogleSheet('email')
+        sherlock = self._getGoogleSheet('emails')
         df = pd.DataFrame(sherlock.get_all_records())
         df = df.replace('', np.nan)
         df = df.dropna()
+
+        # Grab all the email addresses from the dataframe and return them as a mailing list.
+        mailing_list = []
         for email in df['emails']:
-            self.email_list.append(email)
+            mailing_list.append(email)
+        return mailing_list
 
     @staticmethod
     def _sendEmails(self, msg_from, to_addrs, subject, body):

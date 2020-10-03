@@ -31,9 +31,9 @@ class Scraper():
     def scrape(self):
         '''Scrapes the website, parses the dates and case description out of the HTML, '''
         htmlData = self.getHTMLFromURL(self._spu_covid_url)
-        self.parseDataFromHTML(htmlData)
+        self._parseDataFromHTML(htmlData)
         self.cleanLists()
-        self.printTimestamps(htmlData)
+        self._writeListsToGoogleSheet()
 
     def getHTMLFromURL(self, url):
         '''Makes a server request for the given url, ensures the response is ok, then returns a formatted html object.'''
@@ -49,7 +49,7 @@ class Scraper():
         except ConnectionError:
             Courier.sendAdminEmail('Connection Error!')
 
-    def parseDataFromHTML(self, htmlData):
+    def _parseDataFromHTML(self, htmlData):
         '''To be written.'''
         # Get dates and append to dates list.
         for element in htmlData.xpath(self._path_to_dates):
@@ -71,7 +71,7 @@ class Scraper():
             self.cases[i] = self.cases[i].replace(u'\xa0', ' ').strip()
             self.dates[i] = self.dates[i].replace(u'\xa0', ' ').strip()
 
-    def printTimestamps(self, htmlData):
+    def _printTimestamps(self, htmlData):
         '''Prints a formatted timestamp of the last SPU update and the last Tutorly update.'''
         # Get the date from SPU website
         raw_spu_date = str(htmlData.xpath(self._path_to_last_spu_update))
@@ -83,7 +83,7 @@ class Scraper():
         print('Last Update From SPU: ', last_spu_update)
         print('Last Update From Tutorly: ', today)
 
-    def writeListsToGoogleSheet(self):
+    def _writeListsToGoogleSheet(self):
         """
         This function writes the contents of self.dates and self.cases to SPU COVID-19 Tracking Google Sheet. 
         This sheet is available on the Tutorlyeducation gmail account.
@@ -98,12 +98,14 @@ class Scraper():
         row = 2 # Row is 2 because we start populating spreadsheet at row 2 (1 is headers)
         for date in self.dates:
             sheet.update_cell(row, 1, date)
+            print(f'wrote {date} to google sheets.')
             row = row + 1
         
         # Write self.cases to gsheets
         row = 2
         for case in self.cases:
             sheet.update_cell(row, 2, case)
+            print(f'wrote {case} to google sheets.')
             row = row + 1
         print('Data updated in google sheets')
 

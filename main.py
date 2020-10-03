@@ -9,6 +9,6 @@ session = Session()
 
 # Soren's testing
 session.scraper.scrape()
-session.scraper.writeListsToGoogleSheet()
-print(f'New Case?: {session.validator.checkForNewCase()}')
+newCase = session.validator.checkForNewCase()
+print(f'New Case?: {newCase}')
 
