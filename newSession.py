@@ -33,4 +33,5 @@ class Session():
 
     def clearTempLists(self):
         '''Clears lists from scraper, validator, and courier.'''
-        pass
+        self.scraper.emptyLists()
+        self.validator.emptyLists()

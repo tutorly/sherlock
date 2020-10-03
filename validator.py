@@ -13,9 +13,7 @@ class Validator():
         self.num_cases_recorded = 0 # This stores the value from google sheets. This var and num_cases_last_scraped are compared to check for new cases.
 
     def checkForNewCase(self):
-        '''
-        Performs all of the operations to check if there is a new case from the last scrape.
-        '''
+        '''Performs all of the operations to check if there is a new case from the last scrape.'''
         self._getLastScrapeFromGoogleSheets()
         self._countScrapedCases()
         self._getNumRecordedCases()
@@ -84,3 +82,7 @@ class Validator():
         # Update the cell!
         sheet.update_cell(1, 1, self.num_cases_last_scraped)
         
+    def emptyLists(self):
+        '''Empty lists.'''
+        self.dates.clear()
+        self.cases.clear()

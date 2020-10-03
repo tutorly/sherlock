@@ -21,10 +21,11 @@ from validator import Validator
 class Courier():
     '''
     This class contains all of the functions relating to informing people about new cases.
-    Courier (v1 - Email) is responsible for deciding which email list to pick and sending beautiful emails to everyone on that list.
-    Courier (v2 - Twitter) is responsible for submitting a new post to the Tutorly COVID account using the Twitter API.
+        Courier (v1 - Email) is responsible for deciding which email list to pick and sending beautiful emails to everyone on that list.
+        Courier (v2 - Twitter) is responsible for submitting a new post to the Tutorly COVID account using the Twitter API.
     '''
-
+    
+    @staticmethod
     def sendEmailsToEveryoneInMailingList(self, msg):
         '''Send emails using smpt library to every email in the self.emails list.'''
         mailing_list = self._getUpdatedMailingListFromGoogleSheets()
@@ -80,7 +81,7 @@ class Courier():
         return mailing_list
 
     @staticmethod
-    def _sendEmails(self, msg_from, to_addrs, subject, body):
+    def _sendEmails(msg_from, to_addrs, subject, body):
         '''
         Send an email using the gmail smtp client with the given subject, sender name, and message body.
         

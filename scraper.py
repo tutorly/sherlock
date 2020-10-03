@@ -109,7 +109,7 @@ class Scraper():
             row = row + 1
         print('Data updated in google sheets')
 
-    def clearLists(self):
+    def emptyLists(self):
         '''Clear lists'''
         self.dates.clear()
         self.cases.clear()
