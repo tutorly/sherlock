@@ -4,8 +4,9 @@ from datetime import datetime
 import requests
 from lxml import html
 
-class WebScraper():
-    '''Exposes a simple API used to scrape a static webpage.'''
+class Scraper():
+    '''This class contains all of the methods relating to scraping SPU's static webpage containing COVID-19 information.
+    It is in charge of scraping, cleaning, and pushing to google sheets.'''
 
     def __init__(self):
         # Compile-time constant values
@@ -18,6 +19,8 @@ class WebScraper():
         self.dates = []
 
     def scrape(self):
+        '''Scrapes the website, parses the dates and case description out of the HTML, '''
+
         # Grab the HTML from the SPU covid url.
         htmlData = self.getHTMLFromURL(self._spu_covid_url)
 
@@ -59,7 +62,7 @@ class WebScraper():
         '''Parses the cases from the given HTML and adds them to the CASES array.'''
         # Get cases and add to cases list
         for element in htmlData.xpath(self._path_to_cases):
-            self.CASES.append(element)
+            self.cases.append(element)
 
     def cleanLists(self):
         '''The goal of this function is to make all of the data uniform.'''
