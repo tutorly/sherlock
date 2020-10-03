@@ -1,8 +1,9 @@
 """
 This file will loop and check for new cases
 """
-from session import Session
 from scraper import Scraper
+from newSession import Session
+from courier import Courier
 
-scraper = Scraper()
-scraper.scrape()
+Courier.sendAdminEmail('testing')
+
