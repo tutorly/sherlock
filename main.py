@@ -1,7 +1,6 @@
-"""
-This file will loop and check for new cases
-"""
-from session import Session
+"""This file will loop and check for new cases"""
+from bot import Bot
 
-session = Session()
-session.run()
+bot = Bot()
+bot.run()
+
