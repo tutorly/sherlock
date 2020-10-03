@@ -10,22 +10,22 @@ class Validator():
         '''To be written.'''
         self.cases = []
         self.dates = []
+        self.num_cases_last_scraped = 0 
+        self.num_cases_recorded = 0
 
-    def isNewCase(self):
+    def checkForNewCase(self):
         '''
         To be written.
         '''
-        # current_num_cases = len(self.cases)
-        # print('Found {} cases on last scrape.'.format(current_num_cases))
+        self.getLastScrapeFromGoogleSheets()
+        self.countScrapedCases()
+        self.getRecordedCaseNum()
 
-        # # Check if cases has changes
-        # if int(self.getStoredCases()) != current_num_cases:
-        #     newest_case = str('{}: {}'.format(self.dates[0], self.cases[0]))
-        #     self.sendEmails(newest_case) # TODO Change this into notify function so that I can do emails/twitter/other things
-        #     self.setNumCases(current_num_cases)
-        return False
+        # If the last scrape is not equal to the previous number of cases.
+        if self.num_cases_last_scraped != self.num_cases_recorded:
+            # new case
 
-    def getDataFromGoogleSheets(self):
+    def getLastScrapeFromGoogleSheets(self):
         scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
         client = gspread.authorize(creds)
@@ -49,4 +49,39 @@ class Validator():
         for case in cases:
             self.cases.append(case)
         
+    def countScrapedCases(self):
+        '''To be written.'''
+        for case in self.cases:
+            self.num_cases_last_scraped = self.num_cases_last_scraped + int(case.split(' ')[0])
+    
+    def incrementTotalCasesCount(self):
+        '''Only called when self.num_cases_last_scraped is greater than the number of the last recorded max count.'''
+        # Connect to google sheet
+        scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+        client = gspread.authorize(creds)
+        workbook = client.open("SPU COVID-19 Tracking")
+        sheet = workbook.worksheet('numCases')
 
+        # Update cell
+        sheet.update_cell(1, 1, self.num_cases_last_scraped)
+    
+    def getRecordedCaseNum(self):
+        '''
+        Returns the number of cases as as integer (according to google sheets). 
+        Located at cell A1 in numCases tab in the 'SPU COVID-19 Tracking' Sheet. 
+
+        '''
+        # Connect to google sheet
+        scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+        client = gspread.authorize(creds)
+        workbook = client.open("SPU COVID-19 Tracking")
+        sheet = workbook.worksheet('numCases')
+
+        # Store the value from the gsheet.
+        self.num_cases_recorded = int(sheet.acell('A1').value)
+
+    def updateNewCaseCount(self):
+        pass
+        

@@ -10,5 +10,8 @@ session = Session()
 # Soren's testing
 session.scraper.scrape()
 session.scraper.writeListsToGoogleSheet()
-session.validator.getDataFromGoogleSheets()
+session.validator.getLastScrapeFromGoogleSheets()
+session.validator.countScrapedCases()
+session.validator.updateCasesInGoogleSheets()
+session.validator.readPreviousCasesCount()
 

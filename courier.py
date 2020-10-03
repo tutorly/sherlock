@@ -28,11 +28,28 @@ class Courier():
     def __init__(self):
         self.email_list = []
 
-    def updateEmailList(self):
+    def sendEmailsToEveryoneInMailingList(self, msg):
+        '''Send emails using smpt library to every email in the self.emails list.'''
+        self._getUpdatedMailingListFromGoogleSheets()
+        body = f'New case from SPU website. {msg}'
+        self._sendEmails('The Tutorly Team', self.email_list, 'New COVID-19 case confirmed at SPU', body)
+
+    def postToTwitter(self):
+        '''Posts the most recent SPU case to a tutorly twitter account.'''
+        pass
+
+    @staticmethod
+    def sendAdminEmail(msg):
+        '''Sends an email to the admins with the given message.'''
+        admin_email_list = ['soren@tutorly.app', 'justin@tutorly.app', 'steven@tutorly.app']
+        self._sendEmails('Sherlock Admin', admin_email_list, 'Connection Error', msg)
+
+    def _getUpdatedMailingListFromGoogleSheets(self):
         """
-        Select and grab the correct email list from the Google Sheets API and adds contents to the local email list.
+        Updates the mailing list from google sheets.
+
         The creds.json is used to store Google service account credentials hidden by default. You can find this file
-        by searching 'creds.json' in development slack channel.)
+        by searching 'creds.json' in the #development slack channel.
         """
 
         # Connect with our Google Sheet.
@@ -44,7 +61,7 @@ class Courier():
         creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
         client = gspread.authorize(creds)
         sheet = client.open("SPU COVID-19 Tracking")
-        sherlock = sheet.worksheet('emails') # for tests use 'testingEnvironment'
+        sherlock = sheet.worksheet('emails')
 
         # Read google sheet into a dataframe, drop blank rows, appends all emails to self.emails.
         df = pd.DataFrame(sherlock.get_all_records())
@@ -53,94 +70,35 @@ class Courier():
         for email in df['emails']:
             self.email_list.append(email)
 
-    def sendEmails(self, body):
-        '''Send emails using smpt library to every email in the self.emails list.'''
+    def _sendEmails(self, msg_from, to_addrs, subject, body):
+        '''
+        Send an email using the gmail smtp client with the given subject, sender name, and message body.
+        
+        Parameters:
+            msg_from -- Who the email should be sent from.
+            to_addrs -- The recipients of the email(s) you are sending.
+            subject -- The subject of the email(s) that you want to send.
+            body -- The body of the message that you want to send (formatted as plain-text for now).
+        '''
 
-        # Get username and password for the 
+        # Get username and password for the email account, pull password from local environment variables
         username = 'covid@tutorly.app'
-        password = os.getenv('covid_tutorly_password') # pull password from local environment variables
-
-        server = smtplib.SMTP('smtp.gmail.com', 587)        
-        server.starttls() # Enable TLS encryption so our password will be encrypted.
-        server.login(username, password)
-
-        # Send an email to each of the addresses in the email list with the given message.
+        password = os.getenv('covid_tutorly_password')
+        
+        # Construct the message body with the given attributes.
         message = MIMEMultipart()
-        message['From'] = 'The Tutorly Team'
-        message['Subject'] = 'New COVID-19 case confirmed at SPU'
-        final_body = 'New case from SPU website. {}'.format(body)
-        plainTextBody = MIMEText(final_body, 'plain')
-        message.attach(plainTextBody)
-        # server.sendmail(username, self.emails, message.as_string()) # Commented out for safety
+        message['From'] = msg_from
+        message['Subject'] = subject
+        message_body = MIMEText(body, 'plain')
+        message.attach(message_body)
+
+        # Establish a secure connection to the gmail smtp server and send the message.
+        server = smtplib.SMTP('smtp.gmail.com', 587)        
+        server.starttls()
+        server.login(username, password)
+        server.sendmail(username, to_addrs, message.as_string())
         server.quit()
 
-        # Log the emails that were sent to the console for reference.
-        emailList = self.email_list
-        print('Sent {} emails to:\n'.format(len(emailList)))
-        print(*emailList, sep = '\n') # Prints each email address from the list on its own line.
-
-    def sendEmails(self, body):
-        '''Send emails using smpt library to every email in the self.emails list.'''
-
-        # Pull an updated list of emails from Google Sheets and update self.emails
-        self.getEmails()
-
-        # Initialize a connection to the Gmail SMTP server on port 587.
-        server = smtplib.SMTP('smtp.gmail.com', 587)        
-
-        # Use TLS encryption and log into the SMTP server with user credentials.
-        username = 'covid@tutorly.app'
-        password = os.getenv('covid_tutorly_password') # pull password from local environment variables
-        server.starttls() # Enable TLS encryption so our password will be encrypted.
-        server.login(username, password)
-
-        # Send an email to each of the addresses in the email list with the given message.
-        message = MIMEMultipart()
-        message['From'] = 'The Tutorly Team'
-        message['Subject'] = 'New COVID-19 case confirmed at SPU'
-        final_body = 'New case from SPU website. {}'.format(body)
-        plainTextBody = MIMEText(final_body, 'plain')
-        message.attach(plainTextBody)
-        # server.sendmail(username, self.emails, message.as_string()) # Commented out for safety
-        server.quit()
-
-        # Log the emails that were sent to the console for reference.
-        emailList = self.email_list
-        print('Sent {} emails to:\n'.format(len(emailList)))
-        print(*emailList, sep = '\n') # Prints each email address from the list on its own line.
-
-    @staticmethod
-    def sendAdminEmail(msg):
-        '''Sends an email to the admins with the given message.'''
-
-        admin_email_list = ['soren@tutorly.app', 'justin@tutorly.app', 'steven@tutorly.app']
-
-        # Initialize a connection to the Gmail SMTP server on port 587.
-        server = smtplib.SMTP('smtp.gmail.com', 587)        
-
-        # Use TLS encryption and log into the SMTP server with user credentials.
-        username = 'covid@tutorly.app'
-        password = os.getenv('covid_tutorly_password') # pull password from local environment variables
-        server.starttls() # Enable TLS encryption so our password will be encrypted.
-        server.login(username, password)
-
-        # Send an email to each of the addresses in the email list with the given message.
-        message = MIMEMultipart()
-        message['From'] = 'Sherlock Admin'
-        message['Subject'] = 'Connection Error'
-        # time = datetime.today().strftime("%d/%m/%Y %H:%M:%S")
-        final_body = f'{time}\n\n{msg}' 
-        plainTextBody = MIMEText(final_body, 'plain')
-        message.attach(plainTextBody)
-        server.sendmail(username, admin_email_list, message.as_string()) # Commented out for safety
-        server.quit()
-
-        # Log the emails that were sent to the console for reference.
-        print(f'Sent {len(admin_email_list)} emails to:\n')
-        print(*admin_email_list, sep = '\n') # Prints each email address from the list on its own line.
-
-    def postToTwitter(self):
-        '''Posts the most recent SPU case to a tutorly twitter account.'''
-        pass
-
-#### PRIVATE HELPER FUNCTIONS ####
+        # [OPTIONAL] Log the emails that were sent to the console for reference.
+        print(f'Sent {len(to_addrs)} emails to:\n')
+        print(*to_addrs, sep = '\n') # Prints each email address from the list on its own line.
