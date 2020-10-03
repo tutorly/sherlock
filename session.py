@@ -14,6 +14,7 @@ import pandas as pd
 import requests
 from lxml import html
 from oauth2client.service_account import ServiceAccountCredentials
+from scraper import Scraper
 
 
 class Session():
@@ -28,6 +29,7 @@ class Session():
         self.cases = []
         self.dates = []
         self.emails = []
+        self.scraper = Scraper()
 
     def run(self):
         """
