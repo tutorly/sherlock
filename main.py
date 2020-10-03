@@ -2,7 +2,7 @@
 This file will loop and check for new cases
 """
 from scraper import Scraper
-from newSession import Session
+from session import Session
 from courier import Courier
 
 session = Session()

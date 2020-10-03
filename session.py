@@ -29,7 +29,6 @@ class Session():
 
     def run(self):
         '''This is the method that drives the entire program.'''
-        self.scraper.scrape()
 
     def clearTempLists(self):
         '''Clears lists from scraper, validator, and courier.'''

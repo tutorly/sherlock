@@ -46,6 +46,7 @@ class Courier():
         subject = 'Connection Error'
         Courier._sendEmails(sender_name, admin_email_list, subject, msg)
 
+    @staticmethod
     def _getGoogleSheet(self, sheet_tab_name):
         '''Returns a reference to the Google Sheet object with the given tab name.'''
 
@@ -60,8 +61,8 @@ class Courier():
         sheet = client.open("SPU COVID-19 Tracking")
         return sheet.worksheet(sheet_tab_name)
     
-    
-    def _getUpdatedMailingListFromGoogleSheets(self):
+    @staticmethod
+    def _getUpdatedMailingListFromGoogleSheets():
         '''
         Updates the mailing list from google sheets.
 
