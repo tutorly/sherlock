@@ -105,6 +105,10 @@ class Scraper():
         for case in self.cases:
             sheet.update_cell(row, 2, case)
             row = row + 1
-
         print('Data updated in google sheets')
+
+    def clearLists(self):
+        '''Clear lists'''
+        self.dates.clear()
+        self.cases.clear()
        

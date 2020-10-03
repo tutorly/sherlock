@@ -5,27 +5,30 @@ import numpy as np
 
 class Validator():
     '''This class contains all of the methods to determine if the scraper has picked up a new case or not.'''
-
     def __init__(self):
-        '''To be written.'''
+        '''Initializes the validator.'''
         self.cases = []
         self.dates = []
-        self.num_cases_last_scraped = 0 
-        self.num_cases_recorded = 0
+        self.num_cases_last_scraped = 0
+        self.num_cases_recorded = 0 # This stores the value from google sheets. This var and num_cases_last_scraped are compared to check for new cases.
 
     def checkForNewCase(self):
         '''
-        To be written.
+        Performs all of the operations to check if there is a new case from the last scrape.
         '''
-        self.getLastScrapeFromGoogleSheets()
-        self.countScrapedCases()
-        self.getRecordedCaseNum()
+        self._getLastScrapeFromGoogleSheets()
+        self._countScrapedCases()
+        self._getNumRecordedCases()
 
         # If the last scrape is not equal to the previous number of cases.
         if self.num_cases_last_scraped != self.num_cases_recorded:
-            # new case
+            self._updateCaseCount()
+            return True
+        else: return False
 
-    def getLastScrapeFromGoogleSheets(self):
+    def _getLastScrapeFromGoogleSheets(self):
+        '''This method will populate self.cases and self.dates lists with the most recent scrape data.'''
+        # Connect to google
         scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
         client = gspread.authorize(creds)
@@ -49,28 +52,15 @@ class Validator():
         for case in cases:
             self.cases.append(case)
         
-    def countScrapedCases(self):
-        '''To be written.'''
+    def _countScrapedCases(self):
+        '''This is the method that splits apart the cases so we can account for multiple cases in one day. For example: 2 Students will be able to be recorded as 2 new cases.'''
         for case in self.cases:
-            self.num_cases_last_scraped = self.num_cases_last_scraped + int(case.split(' ')[0])
+            self.num_cases_last_scraped = int(self.num_cases_last_scraped) + int(case.split(' ')[0])
     
-    def incrementTotalCasesCount(self):
-        '''Only called when self.num_cases_last_scraped is greater than the number of the last recorded max count.'''
-        # Connect to google sheet
-        scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
-        client = gspread.authorize(creds)
-        workbook = client.open("SPU COVID-19 Tracking")
-        sheet = workbook.worksheet('numCases')
-
-        # Update cell
-        sheet.update_cell(1, 1, self.num_cases_last_scraped)
-    
-    def getRecordedCaseNum(self):
+    def _getNumRecordedCases(self):
         '''
-        Returns the number of cases as as integer (according to google sheets). 
+        Locates the number of cases as as integer and stores in self.num_cases_recorded. (according to google sheets). 
         Located at cell A1 in numCases tab in the 'SPU COVID-19 Tracking' Sheet. 
-
         '''
         # Connect to google sheet
         scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
@@ -82,6 +72,15 @@ class Validator():
         # Store the value from the gsheet.
         self.num_cases_recorded = int(sheet.acell('A1').value)
 
-    def updateNewCaseCount(self):
-        pass
+    def _updateCaseCount(self):
+        '''This method will be called when there is a new (or removed) case from the website.'''
+        # Connect to google sheet
+        scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+        client = gspread.authorize(creds)
+        workbook = client.open("SPU COVID-19 Tracking")
+        sheet = workbook.worksheet('numCases')
+
+        # Update the cell!
+        sheet.update_cell(1, 1, self.num_cases_last_scraped)
         

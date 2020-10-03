@@ -25,14 +25,13 @@ class Courier():
     Courier (v2 - Twitter) is responsible for submitting a new post to the Tutorly COVID account using the Twitter API.
     '''
 
-    def __init__(self):
-        self.email_list = []
-
     def sendEmailsToEveryoneInMailingList(self, msg):
         '''Send emails using smpt library to every email in the self.emails list.'''
-        self._getUpdatedMailingListFromGoogleSheets()
-        body = f'New case from SPU website. {msg}'
-        self._sendEmails('The Tutorly Team', self.email_list, 'New COVID-19 case confirmed at SPU', body)
+        mailing_list = self._getUpdatedMailingListFromGoogleSheets()
+        sender_name = 'The Tutorly Team'
+        subject = 'New COVID-19 case confirmed at SPU'
+        body = f'{text} tested positive for COVID-19. More info: covid.tutorly.app\nSent at {time}'
+        Courier._sendEmails(sender_name, mailing_list, subject, body)
 
     def postToTwitter(self):
         '''Posts the most recent SPU case to a tutorly twitter account.'''
@@ -41,18 +40,15 @@ class Courier():
     @staticmethod
     def sendAdminEmail(msg):
         '''Sends an email to the admins with the given message.'''
+        sender_name = 'Sherlock Admin'
         admin_email_list = ['soren@tutorly.app', 'justin@tutorly.app', 'steven@tutorly.app']
-        self._sendEmails('Sherlock Admin', admin_email_list, 'Connection Error', msg)
+        subject = 'Connection Error'
+        Courier._sendEmails(sender_name, admin_email_list, subject, msg)
 
-    def _getUpdatedMailingListFromGoogleSheets(self):
-        """
-        Updates the mailing list from google sheets.
+    def _getGoogleSheet(self, sheet_tab_name):
+        '''Returns a reference to the sheet.workspace of a Google Sheet using the Google Sheets API.'''
 
-        The creds.json is used to store Google service account credentials hidden by default. You can find this file
-        by searching 'creds.json' in the #development slack channel.
-        """
-
-        # Connect with our Google Sheet.
+        # Connect to the Google Sheets API and pull the given sheet tab.
         scope = [
             "https://spreadsheets.google.com/feeds",
             'https://www.googleapis.com/auth/spreadsheets',
@@ -61,15 +57,25 @@ class Courier():
         creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
         client = gspread.authorize(creds)
         sheet = client.open("SPU COVID-19 Tracking")
-        sherlock = sheet.worksheet('emails')
+        return sheet.worksheet(sheet_tab_name)
+    
+    def _getUpdatedMailingListFromGoogleSheets(self):
+        '''
+        Updates the mailing list from google sheets.
+
+        The creds.json is used to store Google service account credentials hidden by default. You can find this file
+        by searching 'creds.json' in the #development slack channel.
+        '''
 
         # Read google sheet into a dataframe, drop blank rows, appends all emails to self.emails.
+        sherlock = self._getGoogleSheet('email')
         df = pd.DataFrame(sherlock.get_all_records())
         df = df.replace('', np.nan)
         df = df.dropna()
         for email in df['emails']:
             self.email_list.append(email)
 
+    @staticmethod
     def _sendEmails(self, msg_from, to_addrs, subject, body):
         '''
         Send an email using the gmail smtp client with the given subject, sender name, and message body.
