@@ -30,7 +30,7 @@ class Courier():
         subject = 'New COVID-19 case confirmed at SPU'
         person = Courier._getMostRecentCovidCaseDescription()
         time = datetime.today().strftime('%A, %B %Y') 
-        body = f'{person} tested positive for COVID-19. More info: covid.tutorly.app\nSent at {time}'
+        body = f'{person} tested positive for COVID-19. More info: https://covid.tutorly.app\nSent at {time}'
         Courier._sendEmails(sender_name, mailing_list, subject, body)
 
     @staticmethod
