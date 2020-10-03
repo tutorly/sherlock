@@ -1,16 +1,14 @@
-import os
-import smtplib
-import sys
 import time
 from datetime import datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
-import requests
-from oauth2client.service_account import ServiceAccountCredentials
-from lxml import html
 import gspread
+import requests
+from lxml import html
+from oauth2client.service_account import ServiceAccountCredentials
+import sys
+
 from courier import Courier
+
 
 class Scraper():
     '''
@@ -20,7 +18,7 @@ class Scraper():
 
     def __init__(self):
         # Compile-time constant values
-        self._timeout_duration = 60 # The number of seconds to wait before trying to re-establish a connection to the webpage.
+        self._timeout_duration = 120 # The number of seconds to wait before trying to re-establish a connection to the webpage.
         self._spu_covid_url = 'https://spu.edu/administration/health-services/covid-19-cases' # The default website to scrape.
         self._path_to_cases = '//*[@id="pageBody"]/div/p/text()'
         self._path_to_dates = '//*[@id="pageBody"]/div/p/strong/text()'
@@ -65,6 +63,7 @@ class Scraper():
         if len(self.cases) != len(self.dates):
             msg = f'ERROR. Cases list length: {len(self.cases)}. Dates list length: {len(self.dates)}'
             Courier.sendEmailsToAdminOnly(msg)
+            sys.exit('Bot stopped due to length issues.')
 
         # Look for all \xa0 characters and remove them
         for i in range(0, len(self.cases) - 1):

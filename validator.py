@@ -9,20 +9,18 @@ class Validator():
         '''Initializes the validator.'''
         self.cases = []
         self.dates = []
-        self.num_cases_last_scraped = 0
-        self.num_cases_recorded = 0 # This stores the value from google sheets. This var and num_cases_last_scraped are compared to check for new cases.
+        self.num_cases_this_scrape = 0
+        self.num_cases_recorded_prev = 0 # This stores the value from google sheets. This var and num_cases_this_scrape are compared to check for new cases.
 
     def checkForNewCase(self):
         '''Performs all of the operations to check if there is a new case from the last scrape.'''
         self._getLastScrapeFromGoogleSheets()
         self._countScrapedCases()
-        self._getNumRecordedCases()
+        self._getNumPrevRecordedCases()
 
         # If the last scrape is not equal to the previous number of cases.
-        if self.num_cases_last_scraped != self.num_cases_recorded:
+        if self.num_cases_this_scrape != self.num_cases_recorded_prev:
             self._updateCaseCount()
-            print(self.num_cases_last_scraped)
-            print(self.num_cases_recorded)
             return True
         else: return False
 
@@ -55,11 +53,11 @@ class Validator():
     def _countScrapedCases(self):
         '''This is the method that splits apart the cases so we can account for multiple cases in one day. For example: 2 Students will be able to be recorded as 2 new cases.'''
         for case in self.cases:
-            self.num_cases_last_scraped = int(self.num_cases_last_scraped) + int(case.split(' ')[0])
+            self.num_cases_this_scrape = int(self.num_cases_this_scrape) + int(case.split(' ')[0])
     
-    def _getNumRecordedCases(self):
+    def _getNumPrevRecordedCases(self):
         '''
-        Locates the number of cases as as integer and stores in self.num_cases_recorded. (according to google sheets). 
+        Locates the number of cases as as integer and stores in self.num_cases_recorded_prev. (according to google sheets). 
         Located at cell A1 in numCases tab in the 'SPU COVID-19 Tracking' Sheet. 
         '''
         # Connect to google sheet
@@ -70,7 +68,7 @@ class Validator():
         sheet = workbook.worksheet('numCases')
 
         # Store the value from the gsheet.
-        self.num_cases_recorded = int(sheet.acell('A1').value)
+        self.num_cases_recorded_prev = int(sheet.acell('A1').value)
 
     def _updateCaseCount(self):
         '''This method will be called when there is a new (or removed) case from the website.'''
@@ -82,11 +80,11 @@ class Validator():
         sheet = workbook.worksheet('numCases')
 
         # Update the cell!
-        sheet.update_cell(1, 1, self.num_cases_last_scraped)
+        sheet.update_cell(1, 1, self.num_cases_this_scrape)
         
     def cleanUp(self):
         '''Empty lists.'''
         self.dates.clear()
         self.cases.clear()
-        self.num_cases_recorded = 0
-        self.num_cases_last_scraped = 0
+        self.num_cases_recorded_prev = 0
+        self.num_cases_this_scrape = 0
