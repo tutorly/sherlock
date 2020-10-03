@@ -24,19 +24,19 @@ class Courier():
         Courier (v1 - Email) is responsible for deciding which email list to pick and sending beautiful emails to everyone on that list.
         Courier (v2 - Twitter) is responsible for submitting a new post to the Tutorly COVID account using the Twitter API.
     '''
-    
-    @staticmethod
-    def sendEmailsToEveryoneInMailingList(self, msg):
-        '''Send emails using smpt library to every email in the self.emails list.'''
-        mailing_list = self._getUpdatedMailingListFromGoogleSheets()
-        sender_name = 'The Tutorly Team'
-        subject = 'New COVID-19 case confirmed at SPU'
-        body = f'{text} tested positive for COVID-19. More info: covid.tutorly.app\nSent at {time}'
-        Courier._sendEmails(sender_name, mailing_list, subject, body)
 
     def postToTwitter(self):
         '''Posts the most recent SPU case to a tutorly twitter account.'''
         pass
+    
+    @staticmethod
+    def sendEmailsToEveryoneInMailingList(msg):
+        '''Send emails using smpt library to every email in the self.emails list.'''
+        mailing_list = Courier._getUpdatedMailingListFromGoogleSheets()
+        sender_name = 'The Tutorly Team'
+        subject = 'New COVID-19 case confirmed at SPU'
+        body = f'{text} tested positive for COVID-19. More info: covid.tutorly.app\nSent at {time}'
+        Courier._sendEmails(sender_name, mailing_list, subject, body)
 
     @staticmethod
     def sendAdminEmail(msg):
@@ -59,6 +59,7 @@ class Courier():
         client = gspread.authorize(creds)
         sheet = client.open("SPU COVID-19 Tracking")
         return sheet.worksheet(sheet_tab_name)
+    
     
     def _getUpdatedMailingListFromGoogleSheets(self):
         '''
