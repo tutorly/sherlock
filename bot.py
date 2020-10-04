@@ -31,11 +31,15 @@ class Bot():
         self.currentMode = self.modeSelect()
         while(1):
             print('-------------')
+
+            # Let the scraper scrape for new cases.
             self.scraper.scrape()
 
+            # Check if there is a new case from that scrape.
             if self.validator.checkForNewCase():
                 print('Sherlock has found a new case.')
 
+                # Logic to decide who gets emails when there is a new case.
                 if self.currentMode == Mode.TEST:
                     Courier.sendEmailsToAdminOnly('This is a test.')
                 
@@ -44,6 +48,8 @@ class Bot():
 
             self.cleanUp()
             print('-------------')
+
+            # Sleep for as long as indicated in self.loopInterval.
             time.sleep(self.loopInterval)
 
     def modeSelect(self):
