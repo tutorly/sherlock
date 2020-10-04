@@ -4,7 +4,7 @@ A webscraping python script that pulls data from SPU's "covid cases" site and no
 ### Program Files
 main.py -> Runs the program.
 
-session.py -> Contains the `session` class that manages the bot as it loops through the three stages (Scrape, Validate, Communicate).
+botn.py -> Contains the `Bot` class that manages the program as it loops through the three stages (Scrape, Validate, Communicate).
 
     1. scraper.py -> scrapes the SPU webpage, handles server errors, formats data, and pushes result to sheets.
     
