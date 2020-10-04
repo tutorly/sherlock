@@ -68,7 +68,7 @@ class Bot():
             input('Hi, I\'m Sherlock!\nIf you didn\'t mean to start me, press control + c to stop.\nPress ENTER for mode selection.\n')
             selected_mode = input('Enter "test" to run in test mode.\nEnter "prod" to run in production mode.\n')
             if selected_mode in modes:
-                print(f'You entered "{selected_mode}". If this is correct, press ENTER. If not, press control + c to cancel.')
+                print(f'You entered "{selected_mode}". If this is not correct, press control + c. Otherwise, press ENTER.')
                 input()
                 if selected_mode == 'test':
                     return Mode.TEST
