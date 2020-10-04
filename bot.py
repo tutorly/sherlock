@@ -29,6 +29,11 @@ class Bot():
         '''This is the method that drives the entire program.'''
         # Ask the user what mode they want to run the bot in.
         self.currentMode = self.modeSelect()
+
+        # Last output before loop
+        print(f'Starting bot in: {self.currentMode}')
+
+        # While loop.
         while(1):
             print('-------------')
 
@@ -44,7 +49,8 @@ class Bot():
                     Courier.sendEmailsToAdminOnly('This is a test.')
                 
                 if self.currentMode == Mode.PROD:
-                    Courier.sendEmailsToEveryoneInMailingList('New covid-19 case confirmed on campus.')
+                    # Courier.sendEmailsToEveryoneInMailingList('New covid-19 case confirmed on campus.')
+                    pass
 
             self.cleanUp()
             print('-------------')
@@ -59,9 +65,10 @@ class Bot():
 
         # Loop until the user has inputted a correct mode.
         while(1):
-            selected_mode = input('Enter "test" for test mode or "prod" for production mode. ')
+            input('Hi, I\'m Sherlock!\nIf you didn\'t mean to start me, press control + c to stop.\nPress ENTER for mode selection.\n')
+            selected_mode = input('Enter "test" to run in test mode.\nEnter "prod" to run in production mode.\n')
             if selected_mode in modes:
-                print(f'you entered "{selected_mode}". If this is correct, press ENTER. If not, press control + c to cancel.')
+                print(f'You entered "{selected_mode}". If this is correct, press ENTER. If not, press control + c to cancel.')
                 input()
                 if selected_mode == 'test':
                     return Mode.TEST
