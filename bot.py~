@@ -22,7 +22,7 @@ class Bot():
         self.scraper = Scraper()
         self.validator = Validator()
         self.courier = Courier()
-        self.loopInterval = 180 # In seconds
+        self.loopInterval = 60 # In seconds
         self.currentMode = Mode.TEST # This is set in self.ModeSelect() method in the run method. I have it set to Mode.TEST default incase someone removes self.modeSelect().
 
     def run(self):
