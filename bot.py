@@ -1,19 +1,10 @@
 import datetime
 import time
-from enum import Enum
 
 from scraper import Scraper
 from validator import Validator
 from courier import Courier
-
-
-
-
-class Mode(Enum):
-    '''This class is simply an enum to keep track of what mode our bot is currently in. The numbers are entirely arbitrary.'''
-    TEST = 0
-    PROD = 1
-
+from mode import Mode
 
 class Bot():
     '''This bot contains a scraper, a validator, and a courier. It is epic.'''
@@ -46,7 +37,7 @@ class Bot():
 
                 # Logic to decide who gets emails when there is a new case.
                 if self.currentMode == Mode.TEST:
-                    Courier.sendEmailsToAdminOnly('This is a test.')
+                    Courier.sendEmailsToAdminOnly('Covid Case sent to admin emails.')
                 
                 if self.currentMode == Mode.PROD:
                     # Courier.sendEmailsToEveryoneInMailingList('New covid-19 case confirmed on campus.')
