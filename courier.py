@@ -113,7 +113,7 @@ class Courier():
         message.attach(message_body)
 
         # Establish a secure connection to the gmail smtp server and send the message.
-        server = smtplib.SMTP('smtp.gmail.com', 587)        
+        server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login(username, password)
         server.sendmail(username, to_addrs, message.as_string())
