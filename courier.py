@@ -65,15 +65,17 @@ class Courier():
         by searching 'creds.json' in the #development slack channel.
         '''
 
-        # Read google sheet into a dataframe, drop blank rows, appends all emails to self.emails.
+        # Read google sheet into a dataframe, drop blank rows, and remove duplicates.
         sherlock = Courier._getGoogleSheet('emails')
         df = pd.DataFrame(sherlock.get_all_records())
         df = df.replace('', np.nan)
         df = df.dropna()
+        emails_df = df['emails']
+        emails_df = emails_df.drop_duplicates()
 
-        # Grab all the email addresses from the dataframe and return them as a mailing list.
+        # Loop through the emails dataframe and append them to a list to be returned.
         mailing_list = []
-        for email in df['emails']:
+        for email in emails_df:
             mailing_list.append(email)
         return mailing_list
 
