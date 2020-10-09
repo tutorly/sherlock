@@ -4,7 +4,7 @@ import time
 from scraper import Scraper
 from validator import Validator
 from courier import Courier
-from mode import Mode
+from environment import Environment
 
 class Bot():
     '''This bot contains a scraper, a validator, and a courier. It is epic.'''
@@ -14,7 +14,7 @@ class Bot():
         self.validator = Validator()
         self.courier = Courier()
         self.loopInterval = 180 # In seconds
-        self.currentMode = Mode.TEST # This is set in self.ModeSelect() method in the run method. I have it set to Mode.TEST default incase someone removes self.modeSelect().
+        self.currentMode = Environment.TEST # This is set in self.ModeSelect() method in the run method. I have it set to Environment.TEST default incase someone removes self.modeSelect().
 
     def run(self):
         '''This is the method that drives the entire program.'''
@@ -36,10 +36,10 @@ class Bot():
                 print('Sherlock has found a new case.')
 
                 # Logic to decide who gets emails when there is a new case.
-                if self.currentMode == Mode.TEST:
+                if self.currentMode == Environment.TEST:
                     Courier.sendEmailsToAdminOnly('Covid Case sent to admin emails.')
                 
-                if self.currentMode == Mode.PROD:
+                if self.currentMode == Environment.PROD:
                     # Courier.sendEmailsToEveryoneInMailingList('New covid-19 case confirmed on campus.')
                     pass
 
@@ -62,9 +62,9 @@ class Bot():
                 print(f'You entered "{selected_mode}". If this is not correct, press control + c. Otherwise, press ENTER.')
                 input()
                 if selected_mode == 'test':
-                    return Mode.TEST
+                    return Environment.TEST
                 if selected_mode == 'prod':
-                    return Mode.PROD
+                    return Environment.PROD
 
             else: print(f'{selected_mode} is not valid mode.')
 
