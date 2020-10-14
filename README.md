@@ -4,6 +4,9 @@ A webscraping python script that pulls data from SPU's "covid cases" site and no
 ### How do I start the bot?
 run `python main.py`.
 
+### What credentials will I need?
+If you want to run the bot, you'll need our `creds.json` file as well as an environment variable containing the password for the app-specific password to send emails. Send an email to soren@tutorly.app if you are interested in getting these.
+
 ### Program Files
 main.py -> Runs the program.
 
