@@ -1,6 +1,9 @@
 # Sherlock
 A webscraping python script that pulls data from SPU's "covid cases" site and notifies students when there are updates.
 
+### How do I start the bot?
+run `python main.py`.
+
 ### Program Files
 main.py -> Runs the program.
 
