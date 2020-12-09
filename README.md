@@ -4,7 +4,7 @@ A webscraping python bot that pulls data from SPU's "covid cases" site and notif
 **NOTICE:** Project Sherlock stopped running in December 2020 due to SPU changing their website to a dynamic Tableau dashboard. However, our team is commited to notifying students. We will continue sending notifications until the administration decides to do it themselves. To sign up for notifications, visit this [link](https://tutorly.com/covid).
 
 ### How do I start the bot?
-run `python main.py`.
+run `python main.py`
 
 ### What credentials will I need?
 To run the bot, you'll need our `creds.json` file as well as an environment variable that contains credentials to send emails. Send an email to soren@tutorly.app if you are interested in getting these.
