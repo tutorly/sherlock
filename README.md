@@ -1,7 +1,7 @@
 # Sherlock
 A webscraping python bot that pulls data from SPU's "covid cases" site and notifies students when there are updates.
 
-**NOTICE:** Project Sherlock stopped running in December 2020 due to SPU changing their website to a dynamic Tableau dashboard. However, our team is commited to notifying students. We will continue sending notifications until the administration decides to do it themselves. To sign up for notifications, visit this [link](https://tutorly.com/covid).
+**NOTICE:** Project Sherlock stopped running in December 2020 because SPU changed their website to a dynamic Tableau dashboard. Since our team has moved onto other projects, we will no longer support this. If you are interested in bringing Sherlock back to life (could probably get it working with Tesseract-OCR, for starters), please contact Soren at sorenrood@gmail.com.
 
 ### How do I start the bot?
 run `python main.py`
